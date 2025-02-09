@@ -4,7 +4,9 @@ const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
 const courseId = Number(urlParams.get("id"));
 
+const tg = window.Telegram.WebApp;
 const userId = tg.initDataUnsafe.user.id;
+
 const info = localStorage.getItem("infoCourse");
 const courseElement = document.getElementById("info");
 
@@ -42,7 +44,7 @@ function displayLearning(courseData) {
     const pointElement = document.createElement("div");
     pointElement.style.display = "flex";
     pointElement.style.marginBottom = "10px";
-    pointElement.innerHTML = `•&nbsp;`;
+    pointElement.innerHTML = `•&nbsp&nbsp`;
     const pointElementText = document.createElement("div");
     pointElementText.style.display = "flex";
     pointElementText.innerHTML = `${elem.content}`;
@@ -57,7 +59,7 @@ function displayModules(courseData) {
   courseData.courseModuleList.forEach((elem) => {
     const moduleMain = document.createElement("div");
     moduleMain.className = "syllabus-text-course-main toggle";
-    moduleMain.innerHTML = `${elem.number}. ${elem.name}`;
+    moduleMain.innerHTML = `${elem.name}`;
 
     const svgIcon = document.createElementNS(
       "http://www.w3.org/2000/svg",
@@ -81,31 +83,26 @@ function displayModules(courseData) {
     svgIcon.classList.add("toggle-icon");
 
     moduleMain.appendChild(svgIcon);
-
-    const moduleId = elem.number;
     elementModules.append(moduleMain);
 
-    elem.submoduleList.forEach((elem) => {
-      const moduleAditional = document.createElement("div");
-      moduleAditional.classList.add("syllabus-text-course-additional");
-      moduleAditional.innerHTML = `${moduleId}.${elem.number} ${elem.name}`;
-      elementModules.append(moduleAditional);
+    const moduleAditional = document.createElement("ol");
+    moduleAditional.style.margin = 0;
+    moduleAditional.style.paddingLeft = "20px";
+
+    elem.submoduleList.forEach((subElem) => {
+      const subText = document.createElement("li");
+      subText.classList.add("syllabus-text-course-additional");
+      subText.innerText = subElem.name;
+      moduleAditional.append(subText);
     });
+    elementModules.append(moduleAditional);
 
     moduleMain.addEventListener("click", () => {
-      let nextElement = moduleMain.nextElementSibling;
-
-      while (
-        nextElement &&
-        nextElement.classList.contains("syllabus-text-course-additional")
-      ) {
-        const computedStyle = window.getComputedStyle(nextElement);
-        if (computedStyle.display === "none") {
-          nextElement.style.display = "flex";
-        } else {
-          nextElement.style.display = "none";
-        }
-        nextElement = nextElement.nextElementSibling;
+      const computedStyle = window.getComputedStyle(moduleAditional);
+      if (computedStyle.display === "none") {
+        moduleAditional.style.display = "block";
+      } else {
+        moduleAditional.style.display = "none";
       }
 
       svgIcon.classList.toggle("rotated");
@@ -151,10 +148,10 @@ function setupButtons() {
   );
 
   if (idCourse && idCourse.includes(Number(courseId))) {
-    buttonsConfig[0].show = false; // Hide button1
+    buttonsConfig[0].show = false;
     buttonsConfig[1].show = false;
-    buttonsConfig[2].show = true; // Show button2
-    buttonsConfig[3].show = true; // Show button3
+    buttonsConfig[2].show = true;
+    buttonsConfig[3].show = true;
     buttonsConfig[4].show = true;
   }
 

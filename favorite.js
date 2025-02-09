@@ -8,9 +8,10 @@ const tg = window.Telegram.WebApp;
 let username;
 let userIdData;
 
-userIdData = tg.initDataUnsafe.user.id;;
+userIdData = tg.initDataUnsafe.user.id;
 if (tg.initDataUnsafe.user.username) {
-  username = `${tg.initDataUnsafe.user.username}`;
+  const name = `${tg.initDataUnsafe.user.username}`;
+  username = DOMPurify.sanitize(name);
 } else {
   username = "User";
 }
@@ -42,7 +43,7 @@ async function sendUserInfo() {
       "POST"
     );
   }
-  disableTab()
+  disableTab();
   getFavoriteCourses();
 }
 
@@ -131,7 +132,7 @@ function displayButton() {
           >
             <path
               d="M10.9998 7V15M6.99959 11H15M21.0003 11C21.0003 16.5228 16.523 21 10.9998 21C5.47666 21 0.999268 16.5228 0.999268 11C0.999268 5.47715 5.47666 1 10.9998 1C16.523 1 21.0003 5.47715 21.0003 11Z"
-              stroke="white"
+              stroke="currentColor"
               stroke-width="2"
               stroke-linecap="round"
               stroke-linejoin="round"

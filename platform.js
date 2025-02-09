@@ -12,14 +12,180 @@ try {
   window.location.href = "nontg.html";
 }
 
+function applyTheme(theme) {
+  if (theme === "light") {
+    tg.setHeaderColor("#1468B1");
+    document.documentElement.style.setProperty("--theme-bg-color", `#efeff4`);
+    document.documentElement.style.setProperty(
+      "--theme-bg-modals-color",
+      `rgba(0, 0, 0, 0.4)`
+    );
+    document.documentElement.style.setProperty(
+      "--theme-bg-hint-color",
+      `rgba(20, 104, 177, 0.15)`
+    );
+    document.documentElement.style.setProperty(
+      "--theme-header-tab-color",
+      `#1468b1`
+    );
+    document.documentElement.style.setProperty(
+      "--theme-header-text-color",
+      `#ffffff`
+    );
+    document.documentElement.style.setProperty(
+      "--theme-tab-icon-text-color",
+      `#9bb1c5`
+    );
+    document.documentElement.style.setProperty(
+      "--theme-block-color",
+      `#ffffff`
+    );
+    document.documentElement.style.setProperty(
+      "--theme-block-border-color",
+      `rgba(0, 0, 0, 0.1)`
+    );
+    document.documentElement.style.setProperty("--theme-text-color", `#000000`);
+    document.documentElement.style.setProperty(
+      "--theme-text-hint-color",
+      `#a6a6a6`
+    );
+    document.documentElement.style.setProperty("--theme-icon-color", `#ffffff`);
+    document.documentElement.style.setProperty(
+      "--theme-button-color",
+      `#1468b1`
+    );
+    document.documentElement.style.setProperty(
+      "--theme-button-icon-text-color",
+      `#ffffff`
+    );
+    document.documentElement.style.setProperty(
+      "--theme-button-hint-color",
+      `rgba(20, 104, 177, 0.15)`
+    );
+    document.documentElement.style.setProperty(
+      "--theme-button-hint-icon-text-color",
+      `#1468b1`
+    );
+    document.documentElement.style.setProperty(
+      "--theme-progress-bg-color",
+      `#efeff4`
+    );
+    document.documentElement.style.setProperty(
+      "--theme-progress-color",
+      `#1468b1`
+    );
+    document.documentElement.style.setProperty(
+      "--theme-bg-notification-color",
+      `#dce8f3`
+    );
+    document.documentElement.style.setProperty(
+      "--theme-bg-step-color",
+      `rgba(211, 211, 211, 0.7)`
+    );
+    document.documentElement.style.setProperty(
+      "--theme-step-text-color",
+      `#4f4e4e`
+    );
+  } else {
+    tg.setHeaderColor("#191919");
+    document.documentElement.style.setProperty("--theme-bg-color", `#131313`);
+    document.documentElement.style.setProperty(
+      "--theme-bg-modals-color",
+      `rgba(255, 255, 255, 0.4)`
+    );
+    document.documentElement.style.setProperty(
+      "--theme-bg-hint-color",
+      `rgba(203, 202, 198, 0.1)`
+    );
+    document.documentElement.style.setProperty(
+      "--theme-header-tab-color",
+      `#191919`
+    );
+    document.documentElement.style.setProperty(
+      "--theme-header-text-color",
+      `#CBCAC6`
+    );
+    document.documentElement.style.setProperty(
+      "--theme-tab-icon-text-color",
+      `#707070`
+    );
+    document.documentElement.style.setProperty(
+      "--theme-block-color",
+      `#1A1A1A`
+    );
+    document.documentElement.style.setProperty(
+      "--theme-block-border-color",
+      `rgba(255, 255, 255, 0.1)`
+    );
+    document.documentElement.style.setProperty("--theme-text-color", `#CBCAC6`);
+    document.documentElement.style.setProperty(
+      "--theme-text-hint-color",
+      `#9E9E9E`
+    );
+    document.documentElement.style.setProperty("--theme-icon-color", `#CBCAC6`);
+    document.documentElement.style.setProperty(
+      "--theme-button-color",
+      `#CBCAC6`
+    );
+    document.documentElement.style.setProperty(
+      "--theme-button-icon-text-color",
+      `#000000`
+    );
+    document.documentElement.style.setProperty(
+      "--theme-button-hint-color",
+      `rgba(203, 202, 198, 0.1)`
+    );
+    document.documentElement.style.setProperty(
+      "--theme-button-hint-icon-text-color",
+      `#CBCAC6`
+    );
+    document.documentElement.style.setProperty(
+      "--theme-progress-bg-color",
+      `rgba(255, 255, 255, 0.15)`
+    );
+    document.documentElement.style.setProperty(
+      "--theme-progress-color",
+      `#CBCAC6`
+    );
+    document.documentElement.style.setProperty(
+      "--theme-bg-notification-color",
+      `#2C2C2B`
+    );
+    document.documentElement.style.setProperty(
+      "--theme-bg-step-color",
+      `rgba(114, 114, 114, 0.7)`
+    );
+    document.documentElement.style.setProperty(
+      "--theme-step-text-color",
+      `#b0b0b0`
+    );
+  }
+}
 
-tg.setHeaderColor("#1468B1");
+const themePrevious = tg.colorScheme;
+
+if (!localStorage.getItem("theme")) {
+  localStorage.setItem("theme", themePrevious);
+}
+const savedTheme = localStorage.getItem("theme");
+applyTheme(savedTheme);
+
+tg.onEvent("themeChanged", function () {
+  const theme = tg.colorScheme;
+  const savedTheme = localStorage.getItem("theme");
+
+  if (theme !== savedTheme) {
+    applyTheme(theme);
+    localStorage.setItem("theme", theme);
+  }
+});
 
 if ((platform == "ios" || platform == "android") && version > 6) {
   tg.requestFullscreen();
   document.documentElement.style.setProperty("--InsetTop", `${60}px`);
   document.documentElement.style.setProperty("--tabBarHeight", `${70}px`);
   document.documentElement.style.setProperty("--tabBarPadding", `${12}px`);
+  document.documentElement.style.setProperty("--InsetTopNavigation", `${90}px`);
 } else {
   document.documentElement.style.setProperty("--tabBarHeight", `${55}px`);
   document.documentElement.style.setProperty("--tabBarPadding", `${9}px`);
@@ -29,8 +195,10 @@ tg.expand();
 // tg.enableClosingConfirmation();
 tg.disableVerticalSwipes();
 
-document.getElementById("tab").addEventListener("click", function () {
-  tg.HapticFeedback.impactOccurred("medium");
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("tab").addEventListener("click", function () {
+    tg.HapticFeedback.impactOccurred("medium");
+  });
 });
 
 let currentUrl = window.location.pathname;

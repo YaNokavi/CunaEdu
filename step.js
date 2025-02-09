@@ -11,6 +11,7 @@ const buttonBack = document.getElementById("button-back");
 const buttonForward = document.getElementById("button-forward");
 const button = document.getElementById("button-next-step");
 
+const tg = window.Telegram.WebApp;
 const userId = tg.initDataUnsafe.user.id;
 
 const title = document.getElementById("title");
@@ -24,10 +25,115 @@ const stepInfo =
   modulesData[moduleId - 1].submoduleList[submoduleId - 1].stepList;
 let stepProgres = stepInfo[stepId - 1];
 
-var urlContent = stepInfo[stepId - 1].contentUrl;
-var isTest = stepInfo[stepId - 1].test;
+const urlContent = stepInfo[stepId - 1].contentUrl;
+const isTest = stepInfo[stepId - 1].test;
 
-steps.innerHTML = `${stepId} из ${stepInfo.length}`;
+steps.innerHTML = `<div class="button-navigation" id="button-navigation">
+            <svg
+            style="color: var(--theme-button-hint-icon-text-color);"
+              width="20"
+              height="20"
+              viewBox="0 0 28 28"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M3.875 14H24.875"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M3.875 7H24.875"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M3.875 21H24.875"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </div>`;
+steps.innerHTML += `${stepId} из ${stepInfo.length}`;
+
+const navigationBlock = document.getElementById("navigation");
+const navigationList = document.getElementById("navigation-list");
+const navigationButton = document.getElementById("button-navigation");
+navigationButton.addEventListener("click", function () {
+  navigationBlock.classList.toggle("move-right");
+  navigationBlock.classList.toggle("disable");
+});
+
+document.addEventListener("click", function (event) {
+  if (
+    !navigationBlock.contains(event.target) &&
+    !navigationBlock.classList.contains("disable") &&
+    !navigationButton.contains(event.target)
+  ) {
+    navigationBlock.classList.add("disable");
+  }
+});
+
+function createNavigationMenu() {
+  const svgNS = "http://www.w3.org/2000/svg";
+
+  const svgActive = document.createElementNS(svgNS, "svg");
+  svgActive.setAttribute("class", "active-svg");
+  svgActive.setAttribute("width", "9");
+  svgActive.setAttribute("height", "19");
+  svgActive.setAttribute("viewBox", "0 0 9 19");
+  svgActive.setAttribute("fill", "none");
+
+  const path = document.createElementNS(svgNS, "path");
+  path.setAttribute("fill-rule", "evenodd");
+  path.setAttribute("clip-rule", "evenodd");
+  path.setAttribute(
+    "d",
+    "M7.6177 10.063L3.37495 14.5414L2.31445 13.422L6.02695 9.50325L2.31445 5.5845L3.37495 4.46509L7.6177 8.94355C7.75831 9.09201 7.83729 9.29333 7.83729 9.50325C7.83729 9.71318 7.75831 9.9145 7.6177 10.063Z"
+  );
+  path.setAttribute("fill", "currentColor");
+
+  svgActive.appendChild(path);
+  stepInfo.forEach((step) => {
+    const listStepItem = document.createElement("li");
+
+    if (step.completed == true) {
+      listStepItem.classList.add("complete");
+    }
+    if (step.test === true) {
+      listStepItem.innerText = "?";
+    }
+    if (step.number == stepId) {
+      listStepItem.classList.add("active");
+      listStepItem.append(svgActive);
+    } else {
+      listStepItem.addEventListener("click", function () {
+        window.location.href = `step.html?syllabusId=${syllabusId}&moduleId=${moduleId}&submoduleId=${submoduleId}&stepId=${step.number}`;
+      });
+    }
+    navigationList.append(listStepItem);
+  });
+  navigationList.style.maxHeight = `${navigationBlock.offsetHeight - 30}px`;
+
+  const activeItem = document.querySelector(".active");
+  const itemRect = activeItem.getBoundingClientRect();
+  const containerRect = navigationBlock.getBoundingClientRect();
+  const offset =
+    itemRect.top -
+    containerRect.top +
+    itemRect.height / 2 -
+    containerRect.height / 2;
+
+  navigationBlock.scrollTop += offset;
+}
+
+createNavigationMenu();
 
 function addStepProgress() {
   if (stepProgres.completed === false) {
@@ -49,17 +155,14 @@ function addStepProgress() {
 function trackImageLoad() {
   const imageLoadPromises = [];
 
-  // Получаем все элементы <img> на странице
   const imgElements = document.querySelectorAll("img");
 
   imgElements.forEach((img) => {
     const imgLoadPromise = new Promise((resolve, reject) => {
       if (img.complete) {
-        // Если изображение уже загружено
         resolve(img.src);
       } else {
         img.onload = () => {
-          // console.log(`Изображение загружено: ${img.src}`);
           resolve(img.src);
         };
         img.onerror = () => {
@@ -72,10 +175,8 @@ function trackImageLoad() {
     imageLoadPromises.push(imgLoadPromise);
   });
 
-  // После завершения всех загрузок
   Promise.all(imageLoadPromises)
     .then(() => {
-      // console.log("Все изображения загружены успешно!");
       document.getElementById("preloader").style.display = "none";
     })
     .catch((url) => {
@@ -91,7 +192,7 @@ async function getCourseContent() {
     if (!response.ok) {
       throw new Error(`Ошибка: ${response.status}`);
     }
-    const content = await response.text(); // Сохраняем данные в переменной
+    const content = await response.text();
     displayContent(content);
   } catch (error) {
     console.error("Ошибка при получении контента:", error);
@@ -104,6 +205,7 @@ let optionsAnswers;
 function displayContent(content) {
   if (isTest === false) {
     mediaContent.innerHTML = content;
+
     trackImageLoad();
     addStepProgress();
   } else {
@@ -111,6 +213,7 @@ function displayContent(content) {
 
     testArray = {
       question: jsonObject.question,
+      image: jsonObject.image,
       options: jsonObject.options,
       answer: jsonObject.answer,
     };
@@ -130,7 +233,7 @@ const nextButton = document.getElementById("next-button");
 const handleSubmit = () => {
   const inputs = document.querySelectorAll('input[name="question"]');
   inputs.forEach((input) => {
-    input.disabled = true; // Отключаем каждый элемент ввода
+    input.disabled = true;
   });
   let selectedOptions;
   const isMultipleChoice = testArray.answer.length > 1;
@@ -155,11 +258,6 @@ const handleRetry = () => {
 submitButton.addEventListener("click", handleSubmit);
 retryButton.addEventListener("click", handleRetry);
 
-// if (selectedOption && selectedOption.value === testContent.answer) {
-//   score++;
-// }
-// resultContainer.innerText = `Вы набрали ${score} баллов.`;
-
 function displayTest() {
   retryButton.style.display = "none";
   testDiv.style.display = "flex";
@@ -169,12 +267,19 @@ function displayTest() {
 
   const isMultipleChoice = testArray.answer.length > 1;
 
-  testDiv.innerHTML = `<h2 style="margin-bottom: 10px">${
-    testArray.question
-  }</h2>
+  testDiv.innerHTML = `<h2 style="margin-bottom: 10px; line-height: 32px;">${testArray.question}</h2>`;
+
+  if (testArray.image && testArray.image.url) {
+    testDiv.innerHTML += `
+      <img src="${testArray.image.url}" height="${testArray.image.height}" width="${testArray.image.width}" style="align-self: center">
+    `;
+  }
+
+  testDiv.innerHTML += `
     <p style="margin-bottom: 5px">Выберите ${
       isMultipleChoice ? "один или несколько" : "один"
-    } вариант${isMultipleChoice ? "ов" : ""} ответа</p>`;
+    } вариант${isMultipleChoice ? "ов" : ""} ответа</p>
+  `;
 
   testArray.options.forEach((option, index) => {
     const label = document.createElement("label");
@@ -200,27 +305,25 @@ function displayTest() {
   resultSvgIncorrect.style.display = "none";
   retryButton.style.display = "none";
 
-  // Отключите кнопку отправки по умолчанию
   submitButton.classList.add("disabled");
 
   const inputs = document.querySelectorAll('input[name="question"]');
 
-  // Если тест пройден, отключите радиокнопки
   if (stepProgres.completed === true) {
     const stepComplete = document.createElement("div");
     stepComplete.classList.add("step-complete");
     stepComplete.innerText = "Шаг пройден!";
     document.getElementById("blockContent").append(stepComplete);
     submitButton.style.display = "none";
-    // submitButton.style.animation = "none";
+
     nextButton.style.display = "flex";
-    // retryButton.style.display = "flex"
+
     updateNextButtonHref();
     resultContainer.innerText = "Правильно!";
     resultSvgCorrect.style.display = "flex";
-    // nextButton.style.animation = "fadeIn 0.2s ease";
+
     inputs.forEach((input) => {
-      input.disabled = true; // Отключить радиокнопки
+      input.disabled = true;
     });
   } else {
     inputs.forEach((input) => {
@@ -242,7 +345,7 @@ function handleAnswer(selectedValue, isMultipleChoice) {
     }
   } else if (isMultipleChoice) {
     const answersAsString = JSON.stringify(testArray.answer);
-    const selectedValueAsString = JSON.stringify(selectedValue); // Оборачиваем в массив для сравнения
+    const selectedValueAsString = JSON.stringify(selectedValue);
     if (answersAsString.includes(selectedValueAsString)) {
       handleCorrectAnswer();
     } else {
@@ -341,7 +444,7 @@ function setButtonHref(button, href) {
   if (href) button.href = href;
   else button.removeAttribute("href");
 }
-// Обработка кнопки "Назад"
+
 setButtonHref(
   buttonBack,
   stepId == 1
@@ -350,7 +453,7 @@ setButtonHref(
         stepId - 1
       }`
 );
-// Обработка кнопки "Вперед"
+
 setButtonHref(
   buttonForward,
   stepId == totalSteps
@@ -360,7 +463,6 @@ setButtonHref(
       }`
 );
 
-// Обработка кнопки "дальше"
 if (stepId == totalSteps) {
   if (submoduleId < totalSubmodules) {
     setButtonHref(
@@ -370,7 +472,7 @@ if (stepId == totalSteps) {
       }&stepId=1`
     );
   } else if (moduleId < totalModules) {
-    console.log("123")
+    console.log("123");
     setButtonHref(
       button,
       `step.html?syllabusId=${syllabusId}&moduleId=${
