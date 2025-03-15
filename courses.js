@@ -10,10 +10,21 @@ const userId = tg.initDataUnsafe.user.id;
 const info = localStorage.getItem("infoCourse");
 const courseElement = document.getElementById("info");
 
+const lastStepArray = JSON.parse(localStorage.getItem("lastStepArray"));
+
 function renderCourse(course) {
+  let author = course.author;
+
+  if (author.length >= 15) {
+    author = author.slice(0, 15) + "...";
+  }
+
   courseElement.innerHTML = `
-    <a href="https://t.me/${course.author}" class="course-block-author">Автор: @${course.author}</a>
+  <div class="course-media">
+    
     <img src="icons/logo_cuna2.jpg" class="course-logo" />
+    <a href="https://t.me/${course.author}" class="course-block-author">Автор: @${author}</a>
+    </div>
     <div class="course-block-description">
       <div class="course-block-name">${course.name}</div>
       ${course.description}
@@ -35,6 +46,23 @@ if (courseInfo) {
   if (courseInfo) {
     renderCourse(courseInfo);
   }
+}
+
+function displayLastStep(lastStepArray, courseData) {
+  const lastStepBlock = document.getElementById("last-step-block");
+  lastStepBlock.style.display = "flex";
+  const lastStepHref = document.getElementById("last-step");
+  const lastStep = lastStepArray[courseId];
+  const modules = courseData.courseModuleList.find(
+    (module) => module.number == lastStep.moduleId
+  );
+  const sub =
+    modules.submoduleList.find((sub) => sub.number == lastStep.submoduleId) ||
+    null;
+  const step =
+    sub.stepList.find((step) => step.number == lastStep.stepId) || null;
+  lastStepHref.innerHTML = `${sub.name} - ${step.number} шаг`;
+  lastStepHref.href = `step.html?syllabusId=${courseId}&moduleId=${lastStep.moduleId}&submoduleId=${lastStep.submoduleId}&stepId=${lastStep.stepId}`;
 }
 
 function displayLearning(courseData) {
@@ -116,6 +144,9 @@ async function fetchContent() {
   );
 
   localStorage.setItem(`courseData`, JSON.stringify(courseData));
+  if (lastStepArray !== null && lastStepArray[courseId]) {
+    displayLastStep(lastStepArray, courseData);
+  }
   displayLearning(courseData);
   displayModules(courseData);
   document.getElementById("preloader").style.display = "none";

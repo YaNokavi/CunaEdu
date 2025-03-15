@@ -1,4 +1,8 @@
+const lastStepArray = localStorage.getItem("lastStepArray")
+
 localStorage.clear();
+
+localStorage.setItem("lastStepArray", lastStepArray)
 
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);

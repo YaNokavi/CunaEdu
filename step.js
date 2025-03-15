@@ -2,7 +2,7 @@ import fetchData from "./fetch.js";
 
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
-const syllabusId = urlParams.get("syllabusId");
+const syllabusId = Number(urlParams.get("syllabusId"));
 const moduleId = Number(urlParams.get("moduleId"));
 const submoduleId = Number(urlParams.get("submoduleId"));
 const stepId = Number(urlParams.get("stepId"));
@@ -27,6 +27,52 @@ let stepProgres = stepInfo[stepId - 1];
 
 const urlContent = stepInfo[stepId - 1].contentUrl;
 const isTest = stepInfo[stepId - 1].test;
+
+const lastStepArray = JSON.parse(localStorage.getItem("lastStepArray")) || {}
+
+if (!Object.keys(lastStepArray).length) {
+  const syllabusIds = [syllabusId];
+
+  syllabusIds.forEach((id) => {
+    lastStepArray[id] = {
+      moduleId: moduleId,
+      submoduleId: submoduleId,
+      stepId: stepId,
+    };
+  });
+
+  // Сохраняем объект в localStorage
+  localStorage.setItem("lastStepArray", JSON.stringify(lastStepArray));
+  console.log("Добавлен новый элемент:", lastStepArray);
+} else {
+  if (!lastStepArray[syllabusId]) {
+    lastStepArray[syllabusId] = {
+      moduleId: moduleId,
+      submoduleId: submoduleId,
+      stepId: stepId,
+    };
+    console.log(`Элемент с ключом ${syllabusId} добавлен:`, lastStepArray);
+  } else {
+    const existingItem = lastStepArray[syllabusId];
+
+    if (
+      existingItem.moduleId !== moduleId ||
+      existingItem.submoduleId !== submoduleId ||
+      existingItem.stepId !== stepId
+    ) {
+      lastStepArray[syllabusId] = {
+        moduleId: moduleId,
+        submoduleId: submoduleId,
+        stepId: stepId,
+      };
+      console.log(`Элемент с ключом ${syllabusId} обновлён:`, lastStepArray);
+    } else {
+      console.log(`Элемент с ключом ${syllabusId} совпадает:`, existingItem);
+    }
+  }
+
+  localStorage.setItem("lastStepArray", JSON.stringify(lastStepArray));
+}
 
 steps.innerHTML = `<div class="button-navigation" id="button-navigation">
             <svg
