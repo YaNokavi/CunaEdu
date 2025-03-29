@@ -28,7 +28,7 @@ let stepProgres = stepInfo[stepId - 1];
 const urlContent = stepInfo[stepId - 1].contentUrl;
 const isTest = stepInfo[stepId - 1].test;
 
-const lastStepArray = JSON.parse(localStorage.getItem("lastStepArray")) || {}
+const lastStepArray = JSON.parse(localStorage.getItem("lastStepArray")) || {};
 
 if (!Object.keys(lastStepArray).length) {
   const syllabusIds = [syllabusId];
@@ -198,7 +198,38 @@ function addStepProgress() {
   }
 }
 
-function trackImageLoad() {
+async function fixImages() {
+  const images = document.querySelectorAll("img");
+
+  images.forEach((img) => {
+    // Получаем размеры изображения
+    const width = img.width;
+    const height = img.height;
+
+    if (height >= 60) {
+      // Обработка больших изображений
+      const newImg = document.createElement("img");
+      newImg.src = img.src;
+      newImg.classList.add("iview-image");
+      newImg.dataset.iview = "";
+      newImg.style.height = `${img.height}px`;
+      newImg.style.width = `${img.width}px`;
+      newImg.style.alignSelf = "center";
+
+      // Проверяем наличие <p> и удаляем его, если есть
+      if (img.parentNode.tagName === "P") {
+        img.parentNode.parentNode.replaceChild(newImg, img.parentNode);
+      } else {
+        img.parentNode.replaceChild(newImg, img);
+      }
+    } else {
+      // Обработка маленьких изображений
+      img.style.verticalAlign = "middle";
+    }
+  });
+}
+
+async function trackImageLoad() {
   const imageLoadPromises = [];
 
   const imgElements = document.querySelectorAll("img");
@@ -221,15 +252,15 @@ function trackImageLoad() {
     imageLoadPromises.push(imgLoadPromise);
   });
 
-  Promise.all(imageLoadPromises)
-    .then(() => {
-      document.getElementById("preloader").style.display = "none";
-    })
-    .catch((url) => {
-      console.error(
-        `Ошибка при загрузке одного или нескольких изображений: ${url}`
-      );
-    });
+  try {
+    await Promise.all(imageLoadPromises);
+    fixImages();
+    document.getElementById("preloader").style.display = "none";
+  } catch (url) {
+    console.error(
+      `Ошибка при загрузке одного или нескольких изображений: ${url}`
+    );
+  }
 }
 
 async function getCourseContent() {
