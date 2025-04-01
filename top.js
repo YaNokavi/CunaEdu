@@ -15,8 +15,13 @@ function startCountdown(endDate) {
     var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
     var seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-    document.getElementById("timer").innerHTML =
-      days + "д " + hours + "ч " + minutes + "м " + seconds + "с ";
+    let displayString = "";
+    if (days > 0) displayString += days + "д ";
+    if (hours > 0 || days > 0) displayString += hours + "ч ";
+    if (minutes > 0 || hours > 0 || days > 0) displayString += minutes + "м ";
+    displayString += seconds + "с";
+
+    document.getElementById("timer").innerHTML = displayString;
 
     document.getElementById("preloader").style.display = "none";
     if (distance < 0) {
