@@ -9,16 +9,7 @@ const userId = tg.initDataUnsafe.user.id;
 
 const courseData = JSON.parse(localStorage.getItem(`courseData`));
 var modulesData = courseData.courseModuleList;
-
-async function getContent() {
-  const contentGet = await fetchData(
-    `course/${paramId}/content?userId=${userId}`
-  );
-  displayModules();
-  localStorage.setItem("courseData", JSON.stringify(courseData));
-}
-
-getContent();
+displayModules();
 
 function createElement(tag, className, innerHTML) {
   const element = document.createElement(tag);
