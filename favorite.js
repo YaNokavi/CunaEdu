@@ -17,6 +17,31 @@ if (tg.initDataUnsafe.user.username) {
 }
 
 let flagFirstJoin = JSON.parse(localStorage.getItem("flagFirstJoin"));
+const modal = document.getElementById("modal");
+const buttonModal = document.getElementById("okButton");
+buttonModal.addEventListener("click", () => {
+  modal.style.display = "none";
+});
+
+function createListRewards(rewards) {
+  const listRewards = document.getElementById("listRewards");
+  const divReward = document.getElementById("reward");
+  divReward.innerHTML = `+${rewards.userReward} CUNA<div class="modal-coin-logo"></div>
+  `;
+
+  rewards.dailyEntryRewardList.forEach((item) => {
+    const reward = document.createElement("li");
+    if (rewards.userStreakDays >= item.streakDays) {
+      reward.classList.add("complete");
+    }
+    reward.innerText = item.reward;
+
+    listRewards.append(reward);
+  });
+
+  modal.style.display = "flex";
+}
+
 if (flagFirstJoin === true) {
   tabBar.forEach((item) => {
     item.style.pointerEvents = "none";
@@ -30,19 +55,25 @@ if (flagFirstJoin === true) {
 }
 
 async function sendUserInfo() {
-  let userInfo;
+  let rewards;
+
   const referallId = JSON.parse(localStorage.getItem("referallId"));
   if (!referallId || referallId === userIdData) {
-    userInfo = await fetchData(
-      `user/${userIdData}/info?username=${username}`,
+    rewards = await fetchData(
+      `user/${userIdData}/login-and-reward?username=${username}`,
       "POST"
     );
   } else {
-    userInfo = await fetchData(
-      `user/${userIdData}/info?&username=${username}&referrerId=${referallId}`,
+    rewards = await fetchData(
+      `user/${userIdData}/login-and-reward?&username=${username}&referrerId=${referallId}`,
       "POST"
     );
   }
+
+  if (rewards.firstEntryToday === true) {
+    createListRewards(rewards);
+  }
+
   disableTab();
   getFavoriteCourses();
 }
