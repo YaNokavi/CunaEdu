@@ -1272,7 +1272,7 @@ ul.modal-list-days-reward  {
   margin-right: 10px;
   background-color: var(--theme-bg-color);
   padding: 20px;
-  margin-bottom: 150px;
+  /* margin-bottom: 150px; */
 
   width: auto;
   border-radius: 15px;
