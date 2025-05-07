@@ -107,7 +107,7 @@ function displayCourses(courseInfo) {
   courseInfo.forEach((course, index) => {
     setTimeout(() => {
       const courseElement = document.createElement("a");
-      courseElement.href = `courses.html?id=${course.id}`;
+      courseElement.href = `courses.html?v=103&id=${course.id}`;
       courseElement.classList.add("courses-block");
       courseElement.innerHTML = `
             <div class="courses-logo"

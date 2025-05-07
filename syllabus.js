@@ -41,7 +41,7 @@ function displayModules() {
         "syllabus-name-aditional",
         `${module.number}.${submodule.number} ${submodule.name}`
       );
-      submoduleLink.href = `step.html?syllabusId=${paramId}&moduleId=${module.number}&submoduleId=${submodule.number}&stepId=1`;
+      submoduleLink.href = `step.html?v=103&syllabusId=${paramId}&moduleId=${module.number}&submoduleId=${submodule.number}&stepId=1`;
 
       let steps = [];
       submodule.stepList.forEach((step) => {
