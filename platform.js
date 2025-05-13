@@ -240,9 +240,9 @@ if (
   currentUrl.endsWith("syllabus.html") &&
   link.startsWith("step.html")
 ) {
-  link = `courses.html?v=103&id=${idCourse}`;
+  link = `courses.html?v=1.0.3&id=${idCourse}`;
 } else if (currentUrl.endsWith("step.html")) {
-  link = `syllabus.html?v=103&id=${idCourse}`;
+  link = `syllabus.html?v=1.0.3&id=${idCourse}`;
 }
 
 tg.onEvent("backButtonClicked", function () {

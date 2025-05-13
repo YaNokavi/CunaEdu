@@ -1,13 +1,18 @@
 import fetchData from "./fetch.js";
 
+// // Обновление таймера каждую секунду
 function startCountdown(endDate) {
+  // console.log(endDate)
   var countDownDate = new Date(endDate).getTime();
 
   var x = setInterval(function () {
+    // Получение текущей даты и времени
     var now = new Date().getTime();
 
+    // Расчёт оставшегося времени
     var distance = countDownDate - now;
 
+    // Расчёт дней, часов, минут и секунд
     var days = Math.floor(distance / (1000 * 60 * 60 * 24));
     var hours = Math.floor(
       (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
@@ -15,14 +20,17 @@ function startCountdown(endDate) {
     var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
     var seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
+    // Отображение результата
     let displayString = "";
     if (days > 0) displayString += days + "д ";
-    if (hours > 0 || days > 0) displayString += hours + "ч ";
-    if (minutes > 0 || hours > 0 || days > 0) displayString += minutes + "м ";
+    if (hours > 0 || days > 0) displayString += hours + "ч "; // Show hours if there are days
+    if (minutes > 0 || hours > 0 || days > 0) displayString += minutes + "м "; // Show minutes if there are hours or days
     displayString += seconds + "с";
 
+    // Update the timer display
     document.getElementById("timer").innerHTML = displayString;
 
+    // Если таймер истёк, отображение сообщения
     document.getElementById("preloader").style.display = "none";
     if (distance < 0) {
       clearInterval(x);
@@ -33,6 +41,7 @@ function startCountdown(endDate) {
 
 const tg = window.Telegram.WebApp;
 const userId = tg.initDataUnsafe.user.id;
+const avatarUrl = tg.initDataUnsafe.user.photo_url;
 let username;
 let logoname;
 if (tg.initDataUnsafe.user.username) {
@@ -73,7 +82,7 @@ function displayTopUsers(topUsers) {
   listUser.innerHTML = `
   
               <div class="friends-list-block-logo-info">
-                <div class="friends-list-user-logo">${logoname}</div>
+                <div class="friends-list-user-logo" style="background-image: url('${avatarUrl}')"></div>
                 <div class="friends-list-user-info">
                   <div class="friends-list-user-info-name">${username}</div>
                   <div class="friends-list-user-info-balance">
@@ -109,10 +118,26 @@ function displayTopUsers(topUsers) {
     const list = document.createElement("div");
     list.classList.add("friends-list-user");
 
-    list.innerHTML = `
+    if (item.avatarUrl !== null) {
+      list.innerHTML = `
             <div class="list-user-place ${placeClass}" >${item.place}</div>
             <div class="friends-list-block-logo-info">
-              <div class="friends-list-user-logo">${item.username[0].toUpperCase()}</div>
+              <div class="friends-list-user-logo" style="background-image: url('${item.avatarUrl}')"></div>
+              <div class="friends-list-user-info">
+                <div class="friends-list-user-info-name">${item.username}</div>
+                <div class="friends-list-user-info-balance">
+                  <div class="friends-list-user-info-balance-text">${item.userBalance}</div>
+                  <div class="friends-list-user-info-balance-logo"></div>
+                </div>
+              </div>
+            </div>
+            <div class="list-user-reward">${item.rewardAmount}</div>
+   `;
+    } else {
+      list.innerHTML = `
+            <div class="list-user-place ${placeClass}" >${item.place}</div>
+            <div class="friends-list-block-logo-info">
+              <div class="friends-list-user-logo" style="background: #e04646;">${item.username[0].toUpperCase()}</div>
               <div class="friends-list-user-info">
                 <div class="friends-list-user-info-name">${item.username}</div>
                 <div class="friends-list-user-info-balance">
@@ -125,6 +150,7 @@ function displayTopUsers(topUsers) {
             </div>
             <div class="list-user-reward">${item.rewardAmount}</div>
    `;
+    }
     listFriends.append(list);
   });
 }

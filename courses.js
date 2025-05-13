@@ -62,7 +62,7 @@ function displayLastStep(lastStepArray, courseData) {
   const step =
     sub.stepList.find((step) => step.number == lastStep.stepId) || null;
   lastStepHref.innerHTML = `${sub.name} - ${step.number} шаг`;
-  lastStepHref.href = `step.html?v=103&syllabusId=${courseId}&moduleId=${lastStep.moduleId}&submoduleId=${lastStep.submoduleId}&stepId=${lastStep.stepId}`;
+  lastStepHref.href = `step.html?v=1.0.3&syllabusId=${courseId}&moduleId=${lastStep.moduleId}&submoduleId=${lastStep.submoduleId}&stepId=${lastStep.stepId}`;
 }
 
 function displayLearning(courseData) {
@@ -288,7 +288,7 @@ async function postDataRemove() {
 }
 
 button3.addEventListener("click", function () {
-  window.location.href = `syllabus.html?v=103&id=${courseId}`;
+  window.location.href = `syllabus.html?v=1.0.3&id=${courseId}`;
 });
 
 var refer = document.referrer.split("/").pop();
