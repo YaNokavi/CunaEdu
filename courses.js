@@ -188,6 +188,8 @@ function displayRating(ratingInfo) {
     const percent = total > 0 ? Math.round((value / total) * 100) : 0;
     progress.value = percent;
   });
+
+  document.getElementById("preloader").style.display = "none";
 }
 
 async function fetchContent() {
@@ -252,9 +254,9 @@ function setupButtons() {
     button.style.display = show ? "flex" : "none";
   });
 
-  setTimeout(() => {
-    document.getElementById("preloader").style.display = "none";
-  }, 100);
+  
+    
+  
 }
 
 setupButtons();
