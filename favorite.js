@@ -1,7 +1,5 @@
 import fetchData from "./fetch.js";
 
-let tabBar = document.querySelectorAll(".tab-item");
-
 localStorage.removeItem("courseData");
 
 const tg = window.Telegram.WebApp;
@@ -10,6 +8,7 @@ let userIdData;
 const avatarUrl = tg.initDataUnsafe.user.photo_url;
 
 userIdData = tg.initDataUnsafe.user.id;
+
 if (tg.initDataUnsafe.user.username) {
   const name = `${tg.initDataUnsafe.user.username}`;
   username = DOMPurify.sanitize(name);
@@ -18,6 +17,19 @@ if (tg.initDataUnsafe.user.username) {
 }
 
 let flagFirstJoin = JSON.parse(localStorage.getItem("flagFirstJoin"));
+let tabBar = document.querySelectorAll(".tab-item");
+
+if (flagFirstJoin === true) {
+  tabBar.forEach((item) => {
+    item.style.pointerEvents = "none";
+  });
+  sendUserInfo();
+  flagFirstJoin = false;
+  localStorage.setItem("flagFirstJoin", flagFirstJoin);
+} else {
+  getFavoriteCourses();
+}
+
 const modal = document.getElementById("modal");
 const buttonModal = document.getElementById("okButton");
 buttonModal.addEventListener("click", () => {
@@ -43,18 +55,6 @@ function createListRewards(rewards) {
   modal.style.display = "flex";
 }
 
-if (flagFirstJoin === true) {
-  tabBar.forEach((item) => {
-    item.style.pointerEvents = "none";
-  });
-  sendUserInfo();
-  disableTab();
-  flagFirstJoin = false;
-  localStorage.setItem("flagFirstJoin", flagFirstJoin);
-} else {
-  getFavoriteCourses();
-}
-
 async function sendUserInfo() {
   let rewards;
 
@@ -69,6 +69,14 @@ async function sendUserInfo() {
       `user/${userIdData}/login-and-reward?&username=${username}&avatarUrl=${avatarUrl}&referrerId=${referallId}`,
       "POST"
     );
+  }
+
+  if (rewards.history !== null) {
+    localStorage.setItem("storiesType", rewards.history);
+    document.getElementById("page").style.display = "flex";
+
+    const event = new Event("storiesReady");
+    window.dispatchEvent(event);
   }
 
   if (rewards.firstEntryToday === true) {
@@ -103,16 +111,20 @@ function displayCourses(courseInfo) {
   const coursesDiv = document.getElementById("favorite-courses");
   coursesDiv.innerHTML = "";
 
-  const fragment = document.createDocumentFragment();
+  let rating = null;
 
   courseInfo.forEach((course, index) => {
+    rating = course.rating;
+
+    const formattedRating = Number.isInteger(rating)
+      ? rating.toString()
+      : rating.toFixed(1);
     setTimeout(() => {
       const courseElement = document.createElement("a");
       courseElement.href = `courses.html?id=${course.id}`;
       courseElement.classList.add("courses-block");
       courseElement.innerHTML = `
-            <div class="courses-logo"
-          style="background-image: url(icons/logo_cuna2.jpg)"></div>
+            <img src="${course.iconUrl}" class="courses-logo" />
             <div class="courses-block-text">
           <div class="courses-block-name">${course.name}</div>
           <div class="courses-block-description">
@@ -120,7 +132,7 @@ function displayCourses(courseInfo) {
           </div>
           <div class="courses-block-author-rating">
             <div class="courses-block-author">Автор: @${course.author}</div>
-            <div class="courses-block-rating">${course.rating}/5</div>
+            <div class="courses-block-rating">${formattedRating}/5</div>
             <svg
               class="courses-block-rating-star"
               width="13"
@@ -137,10 +149,7 @@ function displayCourses(courseInfo) {
           </div>
         </div>
         `;
-      fragment.append(courseElement);
-      if (index === courseInfo.length - 1) {
-        coursesDiv.append(fragment);
-      }
+      coursesDiv.append(courseElement);
     }, (index + 1) * 100);
   });
 }

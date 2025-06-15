@@ -160,7 +160,7 @@ function createNavigationMenu() {
       listStepItem.append(svgActive);
     } else {
       listStepItem.addEventListener("click", function () {
-        window.location.href = `step.html?v=1.0.3&syllabusId=${syllabusId}&moduleId=${moduleId}&submoduleId=${submoduleId}&stepId=${step.number}`;
+        window.location.href = `step.html?v=1.0.4&syllabusId=${syllabusId}&moduleId=${moduleId}&submoduleId=${submoduleId}&stepId=${step.number}`;
       });
     }
     navigationList.append(listStepItem);
@@ -490,27 +490,27 @@ function updateNextButtonHref() {
     if (submoduleId < totalSubmodules) {
       setButtonHref(
         nextButton,
-        `step.html?v=1.0.3&syllabusId=${syllabusId}&moduleId=${moduleId}&submoduleId=${
+        `step.html?v=1.0.4&syllabusId=${syllabusId}&moduleId=${moduleId}&submoduleId=${
           submoduleId + 1
         }&stepId=1`
       );
     } else if (moduleId < totalModules) {
       setButtonHref(
         nextButton,
-        `step.html?v=1.0.3&syllabusId=${syllabusId}&moduleId=${
+        `step.html?v=1.0.4&syllabusId=${syllabusId}&moduleId=${
           moduleId + 1
         }&submoduleId=1&stepId=1`
       );
     } else {
       setButtonHref(nextButton, null);
       nextButton.addEventListener("click", function () {
-        window.location.href = `syllabus.html?v=1.0.3&id=${syllabusId}`;
+        window.location.href = `syllabus.html?v=1.0.4&id=${syllabusId}`;
       });
     }
   } else {
     setButtonHref(
       nextButton,
-      `step.html?v=1.0.3&syllabusId=${syllabusId}&moduleId=${moduleId}&submoduleId=${submoduleId}&stepId=${
+      `step.html?v=1.0.4&syllabusId=${syllabusId}&moduleId=${moduleId}&submoduleId=${submoduleId}&stepId=${
         stepId + 1
       }`
     );
@@ -526,7 +526,7 @@ setButtonHref(
   buttonBack,
   stepId == 1
     ? null
-    : `step.html?v=1.0.3&syllabusId=${syllabusId}&moduleId=${moduleId}&submoduleId=${submoduleId}&stepId=${
+    : `step.html?v=1.0.4&syllabusId=${syllabusId}&moduleId=${moduleId}&submoduleId=${submoduleId}&stepId=${
         stepId - 1
       }`
 );
@@ -535,7 +535,7 @@ setButtonHref(
   buttonForward,
   stepId == totalSteps
     ? null
-    : `step.html?v=1.0.3&syllabusId=${syllabusId}&moduleId=${moduleId}&submoduleId=${submoduleId}&stepId=${
+    : `step.html?v=1.0.4&syllabusId=${syllabusId}&moduleId=${moduleId}&submoduleId=${submoduleId}&stepId=${
         stepId + 1
       }`
 );
@@ -544,7 +544,7 @@ if (stepId == totalSteps) {
   if (submoduleId < totalSubmodules) {
     setButtonHref(
       button,
-      `step.html?v=1.0.3&syllabusId=${syllabusId}&moduleId=${moduleId}&submoduleId=${
+      `step.html?v=1.0.4&syllabusId=${syllabusId}&moduleId=${moduleId}&submoduleId=${
         submoduleId + 1
       }&stepId=1`
     );
@@ -552,20 +552,20 @@ if (stepId == totalSteps) {
     console.log("123");
     setButtonHref(
       button,
-      `step.html?v=1.0.3&syllabusId=${syllabusId}&moduleId=${
+      `step.html?v=1.0.4&syllabusId=${syllabusId}&moduleId=${
         moduleId + 1
       }&submoduleId=1&stepId=1`
     );
   } else {
     setButtonHref(button, null);
     button.addEventListener("click", function () {
-      window.location.href = `syllabus.html?v=1.0.3&id=${syllabusId}`;
+      window.location.href = `syllabus.html?v=1.0.4&id=${syllabusId}`;
     });
   }
 } else {
   setButtonHref(
     button,
-    `step.html?v=1.0.3&syllabusId=${syllabusId}&moduleId=${moduleId}&submoduleId=${submoduleId}&stepId=${
+    `step.html?v=1.0.4&syllabusId=${syllabusId}&moduleId=${moduleId}&submoduleId=${submoduleId}&stepId=${
       stepId + 1
     }`
   );
@@ -574,22 +574,23 @@ if (stepId == totalSteps) {
 const refer = localStorage.getItem("refer");
 const favorTab = document.getElementById("favor");
 const catalogTab = document.getElementById("catalog");
-var link = document.referrer.split("/").pop();
+let link = document.referrer.split("/").pop();
 link = link.split("&").pop();
 const switc = document.getElementById("switc");
+favorTab.style.animation = "none";
+catalogTab.style.animation = "none";
 
 function setupTab(tab) {
-  tab.style.animation = "none";
   tab.style.color = "#ffffff";
 }
 
-if (refer == "favorite.html") {
+if (refer.endsWith("favorite.html")) {
   setupTab(favorTab);
-} else if (refer == "catalog.html") {
+} else if (refer.endsWith("catalog.html")) {
   setupTab(catalogTab);
 }
 
-if (stepId != 1 || link == "stepId=2") {
+if (stepId != 1 || link === "stepId=2") {
   title.style.animation = "none";
   switc.style.animation = "none";
 }

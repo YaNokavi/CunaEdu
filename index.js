@@ -1,8 +1,13 @@
-const lastStepArray = localStorage.getItem("lastStepArray")
+const tabBar = document.querySelectorAll(".tab-item");
+tabBar.forEach((item) => {
+  item.style.pointerEvents = "none";
+});
+
+const lastStepArray = localStorage.getItem("lastStepArray");
 
 localStorage.clear();
 
-localStorage.setItem("lastStepArray", lastStepArray)
+localStorage.setItem("lastStepArray", lastStepArray);
 
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
@@ -12,4 +17,4 @@ localStorage.setItem("referallId", referallId);
 const flagFirstJoin = true;
 localStorage.setItem("flagFirstJoin", flagFirstJoin);
 
-window.location.href = "favorite.html?v=1.0.3";
+window.location.href = "favorite.html?v=1.0.4";

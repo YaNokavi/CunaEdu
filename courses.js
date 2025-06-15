@@ -9,6 +9,8 @@ const userId = tg.initDataUnsafe.user.id;
 
 const info = localStorage.getItem("infoCourse");
 const courseElement = document.getElementById("info");
+const ratingCourse = document.getElementById("rating");
+const amountComments = document.getElementById("amount-comments");
 
 const lastStepArray = JSON.parse(localStorage.getItem("lastStepArray"));
 
@@ -22,7 +24,7 @@ function renderCourse(course) {
   courseElement.innerHTML = `
   <div class="course-media">
     
-    <img src="icons/logo_cuna2.jpg" class="course-logo" />
+    <img src="${course.iconUrl}" class="course-logo" />
     <a href="https://t.me/${course.author}" class="course-block-author">Автор: @${author}</a>
     </div>
     <div class="course-block-description">
@@ -48,10 +50,12 @@ if (courseInfo) {
   }
 }
 
+const lastStepBlock = document.getElementById("last-step-block");
+const lastStepHref = document.getElementById("last-step");
+
 function displayLastStep(lastStepArray, courseData) {
-  const lastStepBlock = document.getElementById("last-step-block");
   lastStepBlock.style.display = "flex";
-  const lastStepHref = document.getElementById("last-step");
+
   const lastStep = lastStepArray[courseId];
   const modules = courseData.courseModuleList.find(
     (module) => module.number == lastStep.moduleId
@@ -62,7 +66,7 @@ function displayLastStep(lastStepArray, courseData) {
   const step =
     sub.stepList.find((step) => step.number == lastStep.stepId) || null;
   lastStepHref.innerHTML = `${sub.name} - ${step.number} шаг`;
-  lastStepHref.href = `step.html?v=1.0.3&syllabusId=${courseId}&moduleId=${lastStep.moduleId}&submoduleId=${lastStep.submoduleId}&stepId=${lastStep.stepId}`;
+  lastStepHref.href = `step.html?v=1.0.4&syllabusId=${courseId}&moduleId=${lastStep.moduleId}&submoduleId=${lastStep.submoduleId}&stepId=${lastStep.stepId}`;
 }
 
 function displayLearning(courseData) {
@@ -138,18 +142,65 @@ function displayModules(courseData) {
   });
 }
 
+function getReviewWord(count) {
+  count = Math.abs(count) % 100;
+  const lastDigit = count % 10;
+
+  if (count > 10 && count < 20) {
+    return "отзывов";
+  }
+  if (lastDigit > 1 && lastDigit < 5) {
+    return "отзыва";
+  }
+  if (lastDigit === 1) {
+    return "отзыв";
+  }
+  return "отзывов";
+}
+
+function displayRating(ratingInfo) {
+  const rating = ratingInfo.rating;
+
+  const formattedRating = Number.isInteger(rating)
+    ? rating.toString()
+    : rating.toFixed(1);
+  ratingCourse.innerText = `${formattedRating}/5`;
+
+  const count = ratingInfo.reviewsTotalNumber;
+  amountComments.innerText = `${count} ${getReviewWord(count)}`;
+
+  const detailed = ratingInfo.detailedRatingTotalNumber;
+  const total = Object.values(detailed).reduce((sum, v) => sum + v, 0);
+
+  const progressBlocks = document.querySelectorAll(".progress-block-elem");
+
+  const values = [
+    detailed[5],
+    detailed[4],
+    detailed[3],
+    detailed[2],
+    detailed[1],
+  ];
+
+  progressBlocks.forEach((block, idx) => {
+    const progress = block.querySelector("progress");
+    const value = values[idx] || 0;
+    const percent = total > 0 ? Math.round((value / total) * 100) : 0;
+    progress.value = percent;
+  });
+}
+
 async function fetchContent() {
   const courseData = await fetchData(
     `course/${courseId}/content?userId=${userId}`
   );
 
-  localStorage.setItem(`courseData`, JSON.stringify(courseData));
-  if (lastStepArray !== null && lastStepArray[courseId]) {
-    displayLastStep(lastStepArray, courseData);
-  }
+  localStorage.setItem("courseData", JSON.stringify(courseData));
+
+  setupButtons();
   displayLearning(courseData);
   displayModules(courseData);
-  document.getElementById("preloader").style.display = "none";
+  displayRating(courseData.ratingInfo);
 }
 
 fetchContent();
@@ -160,10 +211,15 @@ const button3 = document.getElementById("button3");
 const text = document.querySelector(".course-block-button-text");
 const star1 = document.getElementById("star1");
 const star2 = document.getElementById("star2");
+const buttonHrefComments = document.getElementById("button-href-comments");
 
 const modal = document.getElementById("modal");
 const yesButton = document.getElementById("yesButton");
 const noButton = document.getElementById("noButton");
+
+buttonHrefComments.addEventListener("click", function () {
+  window.location.href = `rating.html?v=1.0.4&idCourse=${courseId}`;
+});
 
 function setupButtons() {
   let buttonsConfig = [
@@ -178,71 +234,105 @@ function setupButtons() {
     (course) => course.id
   );
 
-  if (idCourse && idCourse.includes(Number(courseId))) {
+  if (idCourse && idCourse.includes(courseId)) {
     buttonsConfig[0].show = false;
     buttonsConfig[1].show = false;
     buttonsConfig[2].show = true;
     buttonsConfig[3].show = true;
     buttonsConfig[4].show = true;
+    if (lastStepArray !== null && lastStepArray[courseId]) {
+      displayLastStep(
+        lastStepArray,
+        JSON.parse(localStorage.getItem("courseData"))
+      );
+    }
   }
 
   buttonsConfig.forEach(({ button, show }) => {
     button.style.display = show ? "flex" : "none";
   });
+
+  setTimeout(() => {
+    document.getElementById("preloader").style.display = "none";
+  }, 100);
 }
 
 setupButtons();
 
-button1.addEventListener("click", function () {
-  text.style.animation = "fadeOut 10ms ease";
-  star1.style.animation = "fadeOut 50ms ease";
-  setTimeout(() => {
-    button1.style.animation = "button-course 0.4s ease";
-    text.innerText = "";
-    star1.style.display = "none";
-    setTimeout(() => {
-      star2.style.animation = "fadeIn 100ms ease";
-      star2.style.display = "block";
-      star1.style.animation = "none";
-      button1.style.display = "none";
-      button1.style.animation = "none";
-      button2.style.display = "flex";
-      text.style.animation = "none";
-      button3.style.animation = "fadeIn 100ms ease";
-      button3.style.display = "flex";
-    }, 400);
-  }, 10);
+button1.addEventListener("click", async function () {
+  const response = await postDataAdd();
   let addData = JSON.parse(localStorage.getItem("infoCourse"));
 
-  addData.push(courseInfo);
-  localStorage.setItem("infoCourse", JSON.stringify(addData));
+  if (response !== 0) {
+    addData.push(courseInfo);
+    localStorage.setItem("infoCourse", JSON.stringify(addData));
 
-  postDataAdd();
+    text.style.animation = "fadeOut 10ms ease";
+    star1.style.animation = "fadeOut 50ms ease";
+    setTimeout(() => {
+      button1.style.animation = "button-course 0.4s ease";
+      text.innerText = "";
+      star1.style.display = "none";
+      setTimeout(() => {
+        star2.style.animation = "fadeIn 100ms ease";
+        star2.style.display = "block";
+        star1.style.animation = "none";
+        button1.style.display = "none";
+        button1.style.animation = "none";
+        button2.style.display = "flex";
+        text.style.animation = "none";
+        button3.style.animation = "fadeIn 100ms ease";
+        button3.style.display = "flex";
+      }, 400);
+    }, 10);
+  }
 });
 
 async function postDataAdd() {
-  const response = await fetchData(
-    `user/${userId}/favorite-course?courseId=${courseId}`,
-    "POST",
-    null,
-    false
-  );
+  try {
+    const response = await fetchData(
+      `user/${userId}/favorite-course?courseId=${courseId}`,
+      "POST",
+      null,
+      false
+    );
+    if (response === 200) {
+      if (lastStepArray !== null && lastStepArray[courseId]) {
+        displayLastStep(
+          lastStepArray,
+          JSON.parse(localStorage.getItem("courseData"))
+        );
+      }
+    }
+  } catch {
+    alert("Не удалось установить соединение с сервером");
+    return 0;
+  }
 }
 
 button2.addEventListener("click", function () {
   modal.style.display = "block";
-  noButton.addEventListener("click", function () {
-    modal.style.display = "none";
-  });
+});
+noButton.addEventListener("click", function () {
+  modal.style.display = "none";
+});
 
-  document.addEventListener("click", function (event) {
-    if (event.target === modal) {
-      modal.style.display = "none";
-    }
-  });
-
-  yesButton.addEventListener("click", function () {
+document.addEventListener("click", function (event) {
+  if (event.target === modal) {
     modal.style.display = "none";
+  }
+});
+
+yesButton.addEventListener("click", async function () {
+  modal.style.display = "none";
+  let remData = JSON.parse(localStorage.getItem("infoCourse"));
+
+  const response = await postDataRemove();
+
+  if (response !== 0) {
+    remData = remData.filter((item) => item.id !== Number(courseId));
+    localStorage.setItem("infoCourse", JSON.stringify(remData));
+
     button3.style.animation = "fadeOut 150ms ease";
     setTimeout(() => {
       button3.style.display = "none";
@@ -270,53 +360,58 @@ button2.addEventListener("click", function () {
         }, 50);
       }, 10);
     }, 150);
-    let remData = JSON.parse(localStorage.getItem("infoCourse"));
-    remData = remData.filter((item) => item.id !== Number(courseId));
-    localStorage.setItem("infoCourse", JSON.stringify(remData));
-
-    postDataRemove();
-  });
+  }
 });
 
 async function postDataRemove() {
-  const response = await fetchData(
-    `user/${userId}/favorite-course?courseId=${courseId}`,
-    "DELETE",
-    null,
-    false
-  );
+  try {
+    const response = await fetchData(
+      `user/${userId}/favorite-course?courseId=${courseId}`,
+      "DELETE",
+      null,
+      false
+    );
+    if (response === 200) {
+      if (lastStepArray !== null && lastStepArray[courseId]) {
+        lastStepBlock.style.display = "none";
+      }
+    }
+  } catch {
+    alert("Не удалось установить соединение с сервером");
+    return 0;
+  }
 }
 
 button3.addEventListener("click", function () {
-  window.location.href = `syllabus.html?v=1.0.3&id=${courseId}`;
+  window.location.href = `syllabus.html?v=1.0.4&id=${courseId}`;
 });
 
-var refer = document.referrer.split("/").pop();
-if (!refer || refer === "index.html") refer = "favorite.html";
+let refer = document.referrer.split("/").pop();
+refer = refer.split("?")[0];
 const favorTab = document.getElementById("favor");
 const catalogTab = document.getElementById("catalog");
+catalogTab.style.animation = "none";
+favorTab.style.animation = "none";
 
 function setupCatalog() {
-  catalogTab.style.animation = "none";
   catalogTab.style.color = "#ffffff";
 }
 
 function setupFavorite() {
-  favorTab.style.animation = "none";
   favorTab.style.color = "#ffffff";
 }
 
-if (refer == "favorite.html") {
+if (refer.endsWith("favorite.html")) {
   localStorage.setItem("refer", refer);
   setupFavorite();
-} else if (refer == "catalog.html") {
+} else if (refer.endsWith("catalog.html")) {
   localStorage.setItem("refer", refer);
   setupCatalog();
-} else if (refer.startsWith("syllabus.html")) {
+} else if (refer.endsWith("syllabus.html") || refer.endsWith("rating.html")) {
   let referSyl = localStorage.getItem("refer");
-  if (referSyl == "favorite.html") {
+  if (referSyl.endsWith("favorite.html")) {
     setupFavorite();
-  } else if (referSyl == "catalog.html") {
+  } else if (referSyl.endsWith("catalog.html")) {
     setupCatalog();
   }
 }

@@ -41,7 +41,7 @@ function displayModules() {
         "syllabus-name-aditional",
         `${module.number}.${submodule.number} ${submodule.name}`
       );
-      submoduleLink.href = `step.html?v=1.0.3&syllabusId=${paramId}&moduleId=${module.number}&submoduleId=${submodule.number}&stepId=1`;
+      submoduleLink.href = `step.html?v=1.0.4&syllabusId=${paramId}&moduleId=${module.number}&submoduleId=${submodule.number}&stepId=1`;
 
       let steps = [];
       submodule.stepList.forEach((step) => {
@@ -65,19 +65,19 @@ function displayModules() {
 const refer = localStorage.getItem("refer");
 const favorTab = document.getElementById("favor");
 const catalogTab = document.getElementById("catalog");
+catalogTab.style.animation = "none";
+favorTab.style.animation = "none";
 
 function setupCatalog() {
-  catalogTab.style.animation = "none";
   catalogTab.style.color = "#ffffff";
 }
 
 function setupFavorite() {
-  favorTab.style.animation = "none";
   favorTab.style.color = "#ffffff";
 }
 
-if (refer == "favorite.html") {
+if (refer.endsWith("favorite.html")) {
   setupFavorite();
-} else if (refer == "catalog.html") {
+} else if (refer.endsWith("catalog.html")) {
   setupCatalog();
 }

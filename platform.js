@@ -206,7 +206,8 @@ const BackButton = tg.BackButton;
 if (
   currentUrl.endsWith("courses.html") ||
   currentUrl.endsWith("syllabus.html") ||
-  currentUrl.endsWith("step.html")
+  currentUrl.endsWith("step.html") ||
+  currentUrl.endsWith("rating.html")
 ) {
   BackButton.show();
   swipeAllow();
@@ -215,42 +216,45 @@ if (
 }
 
 let link = document.referrer.split("/").pop();
+link = link.split("?")[0];
 if (!link) link = "favorite.html";
 let idCourse;
 const queryString = window.location.search;
 const params = new URLSearchParams(queryString);
 
 if (currentUrl.endsWith("syllabus.html")) {
-  idCourse = params.get("id");
+  idCourse = Number(params.get("id"));
 } else if (currentUrl.endsWith("step.html")) {
-  idCourse = params.get("syllabusId");
+  idCourse = Number(params.get("syllabusId"));
+} else if (currentUrl.endsWith("rating.html")) {
+  idCourse = Number(params.get("idCourse"));
 }
 
 if (
   currentUrl.endsWith("courses.html") &&
-  (link == "favorite.html" || link == "catalog.html")
+  (link === "favorite.html" || link === "catalog.html")
 ) {
   localStorage.setItem("link", link);
 } else if (
   currentUrl.endsWith("courses.html") &&
-  link.startsWith("syllabus.html")
+  (link.endsWith("syllabus.html") || link.endsWith("rating.html"))
 ) {
   link = localStorage.getItem("link");
 } else if (
-  currentUrl.endsWith("syllabus.html") &&
-  link.startsWith("step.html")
+  currentUrl.endsWith("syllabus.html") ||
+  currentUrl.endsWith("rating.html")
 ) {
-  link = `courses.html?v=1.0.3&id=${idCourse}`;
+  link = `courses.html?v=1.0.4&id=${idCourse}`;
 } else if (currentUrl.endsWith("step.html")) {
-  link = `syllabus.html?v=1.0.3&id=${idCourse}`;
+  link = `syllabus.html?v=1.0.4&id=${idCourse}`;
 }
 
 tg.onEvent("backButtonClicked", function () {
+  tg.HapticFeedback.impactOccurred("medium");
   if (link) {
     window.location.href = link;
   } else {
   }
-  tg.HapticFeedback.impactOccurred("medium");
 });
 
 function swipeAllow() {

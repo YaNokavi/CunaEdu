@@ -14,9 +14,7 @@ async function fetchCourses() {
 
     displayCourses();
   } else {
-    coursesData = await fetchData(
-      "course/all"
-    );
+    coursesData = await fetchData("course/all");
     localStorage.setItem("catalogData", JSON.stringify(coursesData));
     displayCourses();
   }
@@ -55,13 +53,20 @@ function setupFavoriteCourse(courseData) {
 function displayCourses() {
   document.getElementById("preloader").style.display = "none";
   const coursesDiv = document.getElementById("courses");
+  let rating = null;
   coursesData.forEach((course, index) => {
+    rating = course.rating;
+
+    const formattedRating = Number.isInteger(rating)
+      ? rating.toString()
+      : rating.toFixed(1);
+
     setTimeout(() => {
       const courseElement = document.createElement("a");
-      courseElement.href = `courses.html?v=1.0.3&id=${course.id}`;
+      courseElement.href = `courses.html?v=1.0.4&id=${course.id}`;
       courseElement.classList.add("courses-block");
       courseElement.innerHTML = `
-          <img src="icons/logo_cuna2.jpg" class="courses-logo" />
+          <img src="${course.iconUrl}" class="courses-logo" />
             <div class="courses-block-text">
           <div class="courses-block-name" id="favoriteMark${course.id}" style="flex-direction: row;">${course.name}  
           </div>
@@ -70,7 +75,7 @@ function displayCourses() {
           </div>
           <div class="courses-block-author-rating">
             <div class="courses-block-author">Автор: @${course.author}</div>
-            <div class="courses-block-rating">${course.rating}/5</div>
+            <div class="courses-block-rating">${formattedRating}/5</div>
             <svg
               class="courses-block-rating-star"
               width="13"
@@ -109,13 +114,14 @@ function displayCourses() {
 // }
 
 let refer = document.referrer.split("/").pop();
+refer = refer.split("?")[0];
 const title = document.getElementById("title");
 const catalogTab = document.getElementById("active");
 
 if (
-  refer.startsWith("courses.html") ||
-  refer.startsWith("syllabus.html") ||
-  refer.startsWith("step.html")
+  refer.endsWith("courses.html") ||
+  refer.endsWith("syllabus.html") ||
+  refer.endsWith("step.html")
 ) {
   title.style.animation = "none";
   catalogTab.style.animation = "none";
