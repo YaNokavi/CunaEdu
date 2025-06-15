@@ -253,13 +253,7 @@ function setupButtons() {
   buttonsConfig.forEach(({ button, show }) => {
     button.style.display = show ? "flex" : "none";
   });
-
-  
-    
-  
 }
-
-setupButtons();
 
 button1.addEventListener("click", async function () {
   const response = await postDataAdd();

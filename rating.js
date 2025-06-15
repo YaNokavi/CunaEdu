@@ -655,7 +655,6 @@ function displayComments(courseReviews) {
         userReactionDislike = "active";
       }
     }
-    console.log(review);
     let comment = `<div class="comment-block ${commentColor}" data-review-id="${review.reviewId}">
           <div class="comment-info">
             <div class="comment-text-rating">
