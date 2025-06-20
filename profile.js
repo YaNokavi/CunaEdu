@@ -7,31 +7,25 @@ const popupBtn = document.getElementById("pop");
 const popupBtnSvg = document.getElementById("popu");
 const balanceText = document.getElementById("balance");
 const userIdProfile = document.querySelector(".profile-userid");
-const logoNameProfile = document.querySelector(
-  ".profile-logo"
-);
+const logoNameProfile = document.querySelector(".profile-logo");
 const userNameProfile = document.querySelector(".profile-nickname");
 const course = document.getElementById("course-info");
 
 const tg = window.Telegram.WebApp;
 const userIdData = tg.initDataUnsafe.user.id;
-// const userIdData = 1;
+
 const userPhoto = tg.initDataUnsafe.user.photo_url;
-// let logoName;
 let userName;
 
 if (tg.initDataUnsafe.user.username) {
-  // logoName = `${tg.initDataUnsafe.user.username}`[0].toUpperCase();
   const name = `${tg.initDataUnsafe.user.username}`;
   userName = DOMPurify.sanitize(name);
 } else {
-  // logoName = "U";
   userName = "User";
 }
 
 userIdProfile.innerText += userIdData;
 logoNameProfile.style.backgroundImage = `url('${userPhoto}')`;
-// logoNameProfile.innerText = logoName;
 
 const setUserNameProfile = (name) => {
   let fontSize;
@@ -48,35 +42,30 @@ const setUserNameProfile = (name) => {
   userNameProfile.style.fontSize = fontSize;
   const sanitizedUserName = DOMPurify.sanitize(name);
   userNameProfile.innerText = sanitizedUserName;
-  // userNameProfile.innerText = name;
 };
 
 setUserNameProfile(userName);
 
 async function getUserInfo() {
-  const userInfo = await fetchData(
-    `user/${userIdData}/profile/info`,
-    "GET"
-  );
-  balanceText.innerText = userInfo.balance.toFixed(2);;
+  const userInfo = await fetchData(`user/${userIdData}/profile/info`, "GET");
+  const formattedBalance = Number.isInteger(userInfo.balance)
+    ? userInfo.balance.toString()
+    : userInfo.balance.toFixed(2);
 
-  if (userInfo.coursesProgress.length != 0) {
+  balanceText.innerText = formattedBalance;
+
+  if (userInfo.coursesProgress.length !== 0) {
     displayProgress(userInfo);
   } else {
-    displayButton();
+    displayNotProgress();
   }
 }
 
-getUserInfo();
-
 async function getTasks() {
   await getUserInfo();
-  const tasksInfo = await fetchData(
-    `task/all?userId=${userIdData}`,
-    "GET"
-  );
+  const tasksInfo = await fetchData(`task/all?userId=${userIdData}`, "GET");
 
-  displayTasks(tasksInfo);
+  tasksInfo.length !== 0 ? displayTasks(tasksInfo) : displayNotTasks();
 }
 
 getTasks();
@@ -92,7 +81,11 @@ async function checkTask(task) {
     buttonTask.classList.remove("load-task-animation");
     buttonTask.classList.remove("load-task");
     displayNotification(taskCheckInfo.reward);
-    balanceText.innerText = taskCheckInfo.newBalance.toFixed(2);
+    const formattedBalance = Number.isInteger(taskCheckInfo.newBalance)
+      ? taskCheckInfo.newBalance.toString()
+      : taskCheckInfo.newBalance.toFixed(2);
+
+    balanceText.innerText = formattedBalance;
     buttonTask.classList.add("complete-task");
     buttonTask.textContent = "";
     buttonTask.innerHTML = `
@@ -250,10 +243,16 @@ function animateProgress() {
   }
 }
 
-function displayButton() {
+function displayNotProgress() {
   course.style.marginLeft = "0";
-  const buttonHtml = `<div class="progress-title-enable-courses">Вы не изучаете ни один курс</div>`;
-  course.innerHTML = buttonHtml;
+  const notProgressHtml = `<div class="progress-title-enable-courses">Вы не изучаете ни один курс</div>`;
+  course.innerHTML = notProgressHtml;
+}
+function displayNotTasks() {
+  tasksList.style.marginTop = "10px";
+  const notTasksHtml = `<div class="progress-title-enable-courses">Вы уже выполнили все задания</div>`;
+  tasksList.innerHTML = notTasksHtml;
+  document.getElementById("preloader").style.display = "none";
 }
 
 function displayNotification(reward) {
