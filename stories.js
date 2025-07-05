@@ -1,10 +1,8 @@
 const page = document.getElementById("page");
+
 const htmlForStory = `
-      <div class="status-bar">
-        <div class="status-bar-element active"></div>
-        <div class="status-bar-element"></div>
-        <div class="status-bar-element"></div>
-        <div class="status-bar-element"></div>
+      <div class="status-bar" id="status-bar">
+        
       </div>
       <div class="main-content">
         <div class="text-content">
@@ -27,11 +25,10 @@ page.innerHTML = htmlForStory;
 const textHeader = document.getElementById("text-header");
 const textBottom = document.getElementById("text-bottom");
 const storyGif = document.getElementById("story-gif");
+const statusBar = document.getElementById("status-bar");
 
 const skipButton = document.getElementById("button-skip");
 const nextButton = document.getElementById("button-next");
-
-const statusBarElements = document.querySelectorAll(".status-bar-element");
 
 const storiesNewUser = {
   first: {
@@ -67,31 +64,17 @@ const storiesNewUser = {
 const storiesNewUpdate = {
   first: {
     pageColor: "linear-gradient(90deg, #09518b 0%, #002f52 100%)",
-    header: "Обновление 1.0.4 уже здесь!",
+    header: "Новый курс уже в приложении!",
     description:
-      "В приложении появились истории, пользовательские оценки курсов, а также иконки курсов от Cryptuna!",
+      "Теперь у вас есть возможность пройти наш новый курс об экосистеме TON!",
     gifURL: "gif/octopus(miidle)_compressed.gif",
   },
   second: {
     pageColor: "linear-gradient(90deg, #002F52 0%, #075FA0 100%)",
-    header: "Истории",
+    header: "Экосистема TON",
     description:
-      "Теперь в приложении есть истории, в которых мы будем кратко рассказывать о нововведениях!",
-    gifURL: "gif/test/loch.gif",
-  },
-  third: {
-    pageColor: "linear-gradient(90deg, #075FA0 0%, #004375 100%)",
-    header: "Оценка курсов",
-    description:
-      "Мы добавили возможность оставлять оценки и комментарии к курсам, чтобы каждый мог оставить свое мнение, а также ознакомиться с мнением других!",
+      "Пройдя курс, вы узнаете много нового: от популярных приложение в сети до создания своей собственный монеты! <br><br> Чего же ты ждешь? Вперед!",
     gifURL: "gif/test/star.gif",
-  },
-  fourth: {
-    pageColor: "linear-gradient(90deg, #004475 0%, #00182A 100%)",
-    header: "Новые иконки",
-    description:
-      "Теперь на наших курсах есть красивые иконки.<br><br> Чего же ты ждешь, беги скорее смотреть обновление!",
-    gifURL: "gif/test/gold.gif",
   },
 };
 
@@ -101,6 +84,7 @@ let storyKeys = null;
 let storyList = null;
 
 function updateStatusBar(activeIndex) {
+  const statusBarElements = document.querySelectorAll(".status-bar-element");
   statusBarElements.forEach((el, i) => {
     if (i === activeIndex) {
       el.classList.add("active");
@@ -111,6 +95,8 @@ function updateStatusBar(activeIndex) {
 }
 
 function displayStory(index) {
+  console.log(index);
+
   const story = storyList[storyKeys[index]];
   page.style.background = story.pageColor;
   textHeader.innerText = story.header;
@@ -135,6 +121,13 @@ window.addEventListener("storiesReady", function () {
     }
   }
 
+  Object.keys(storyList).forEach((story, index) => {
+    if (index === 0) {
+      statusBar.innerHTML += `<div class="status-bar-element active"></div>`;
+    } else {
+      statusBar.innerHTML += `<div class="status-bar-element"></div>`;
+    }
+  });
   displayStory(currentIndex);
 });
 
@@ -183,7 +176,6 @@ page.addEventListener("click", function (event) {
   const clickX = event.clientX;
   const screenWidth = window.innerWidth;
 
-
   if (
     clickX > screenWidth / 2 &&
     event.target !== skipButton &&
@@ -193,5 +185,4 @@ page.addEventListener("click", function (event) {
   } else {
     goPrev();
   }
-
 });
