@@ -225,7 +225,7 @@ const params = new URLSearchParams(queryString);
 if (currentUrl.endsWith("syllabus.html")) {
   idCourse = Number(params.get("id"));
 } else if (currentUrl.endsWith("step.html")) {
-  idCourse = Number(params.get("syllabusId"));
+  idCourse = Number(params.get("courseId"));
 } else if (currentUrl.endsWith("rating.html")) {
   idCourse = Number(params.get("idCourse"));
 }

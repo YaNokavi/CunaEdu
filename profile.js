@@ -14,7 +14,7 @@ const course = document.getElementById("course-info");
 const tg = window.Telegram.WebApp;
 const userIdData = tg.initDataUnsafe.user.id;
 
-const userPhoto = "tg.initDataUnsafe.user.photo_url";
+const userPhoto = tg.initDataUnsafe.user.photo_url;
 let userName;
 
 if (tg.initDataUnsafe.user.username) {
