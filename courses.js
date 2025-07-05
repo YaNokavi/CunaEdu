@@ -7,14 +7,13 @@ const courseId = Number(urlParams.get("id"));
 const tg = window.Telegram.WebApp;
 const userId = tg.initDataUnsafe.user.id;
 
-const info = localStorage.getItem("infoCourse");
 const courseElement = document.getElementById("info");
 const ratingCourse = document.getElementById("rating");
 const amountComments = document.getElementById("amount-comments");
 
-const lastStepArray = JSON.parse(localStorage.getItem("lastStepArray"));
+// const lastStepArray = JSON.parse(localStorage.getItem("lastStepArray"));
 
-function renderCourse(course) {
+function displayCourseInfo(course) {
   let author = course.author;
 
   if (author.length >= 15) {
@@ -34,52 +33,36 @@ function renderCourse(course) {
   `;
 }
 
-function getCourseInfo() {
-  const courses = JSON.parse(info) || [];
-  return courses.find((course) => course.id == courseId) || null;
-}
+// const lastStepBlock = document.getElementById("last-step-block");
+// const lastStepHref = document.getElementById("last-step");
 
-var courseInfo = getCourseInfo();
-if (courseInfo) {
-  renderCourse(courseInfo);
-} else {
-  const catalogData = JSON.parse(localStorage.getItem("catalogData"));
-  var courseInfo = catalogData.find((course) => course.id == courseId) || null;
-  if (courseInfo) {
-    renderCourse(courseInfo);
-  }
-}
+// function displayLastStep(lastStepArray, courseData) {
+//   lastStepBlock.style.display = "flex";
 
-const lastStepBlock = document.getElementById("last-step-block");
-const lastStepHref = document.getElementById("last-step");
-
-function displayLastStep(lastStepArray, courseData) {
-  lastStepBlock.style.display = "flex";
-
-  const lastStep = lastStepArray[courseId];
-  const modules = courseData.courseModuleList.find(
-    (module) => module.number == lastStep.moduleId
-  );
-  const sub =
-    modules.submoduleList.find((sub) => sub.number == lastStep.submoduleId) ||
-    null;
-  const step =
-    sub.stepList.find((step) => step.number == lastStep.stepId) || null;
-  lastStepHref.innerHTML = `${sub.name} - ${step.number} шаг`;
-  lastStepHref.href = `step.html?v=1.0.4&syllabusId=${courseId}&moduleId=${lastStep.moduleId}&submoduleId=${lastStep.submoduleId}&stepId=${lastStep.stepId}`;
-}
+//   const lastStep = lastStepArray[courseId];
+//   const modules = courseData.courseModuleList.find(
+//     (module) => module.number == lastStep.moduleId
+//   );
+//   const sub =
+//     modules.submoduleList.find((sub) => sub.number == lastStep.submoduleId) ||
+//     null;
+//   const step =
+//     sub.stepList.find((step) => step.number == lastStep.stepId) || null;
+//   lastStepHref.innerHTML = `${sub.name} - ${step.number} шаг`;
+//   lastStepHref.href = `step.html?v=1.0.5&syllabusId=${courseId}&moduleId=${lastStep.moduleId}&submoduleId=${lastStep.submoduleId}&stepId=${lastStep.stepId}`;
+// }
 
 function displayLearning(courseData) {
   const elementLearning = document.getElementById("points");
   elementLearning.innerHTML = "";
-  courseData.learningOutcomeList.forEach((elem) => {
+  courseData.learningOutcomes.forEach((elem) => {
     const pointElement = document.createElement("div");
     pointElement.style.display = "flex";
     pointElement.style.marginBottom = "10px";
     pointElement.innerHTML = `•&nbsp&nbsp`;
     const pointElementText = document.createElement("div");
     pointElementText.style.display = "flex";
-    pointElementText.innerHTML = `${elem.content}`;
+    pointElementText.innerHTML = `${elem}`;
     pointElement.append(pointElementText);
     elementLearning.append(pointElement);
   });
@@ -88,7 +71,7 @@ function displayLearning(courseData) {
 function displayModules(courseData) {
   const elementModules = document.getElementById("modules");
   elementModules.innerHTML = "";
-  courseData.courseModuleList.forEach((elem) => {
+  courseData.courseModulesInfo.forEach((elem) => {
     const moduleMain = document.createElement("div");
     moduleMain.className = "syllabus-text-course-main toggle";
     moduleMain.innerHTML = `${elem.name}`;
@@ -121,10 +104,10 @@ function displayModules(courseData) {
     moduleAditional.style.margin = 0;
     moduleAditional.style.paddingLeft = "20px";
 
-    elem.submoduleList.forEach((subElem) => {
+    elem.submoduleNames.forEach((subElem) => {
       const subText = document.createElement("li");
       subText.classList.add("syllabus-text-course-additional");
-      subText.innerText = subElem.name;
+      subText.innerText = subElem;
       moduleAditional.append(subText);
     });
     elementModules.append(moduleAditional);
@@ -193,13 +176,13 @@ function displayRating(ratingInfo) {
 }
 
 async function fetchContent() {
-  const courseData = await fetchData(
-    `course/${courseId}/content?userId=${userId}`
-  );
+  const courseData = await fetchData(`course/${courseId}/info`, "GET", {
+    "X-User-Id": userId,
+  });
+  // localStorage.setItem("courseData", JSON.stringify(courseData));
 
-  localStorage.setItem("courseData", JSON.stringify(courseData));
-
-  setupButtons();
+  setupButtons(courseData);
+  displayCourseInfo(courseData);
   displayLearning(courseData);
   displayModules(courseData);
   displayRating(courseData.ratingInfo);
@@ -220,10 +203,10 @@ const yesButton = document.getElementById("yesButton");
 const noButton = document.getElementById("noButton");
 
 buttonHrefComments.addEventListener("click", function () {
-  window.location.href = `rating.html?v=1.0.4&idCourse=${courseId}`;
+  window.location.href = `rating.html?v=1.0.5&idCourse=${courseId}`;
 });
 
-function setupButtons() {
+function setupButtons(courseData) {
   let buttonsConfig = [
     { button: button1, show: true },
     { button: star1, show: true },
@@ -232,36 +215,40 @@ function setupButtons() {
     { button: star2, show: false },
   ];
 
-  const idCourse = JSON.parse(localStorage.getItem("infoCourse"))?.map(
-    (course) => course.id
-  );
+  // const idCourse = JSON.parse(localStorage.getItem("infoCourse"))?.map(
+  //   (course) => course.id
+  // );
 
-  if (idCourse && idCourse.includes(courseId)) {
+  if (courseData.favorite === true) {
     buttonsConfig[0].show = false;
     buttonsConfig[1].show = false;
     buttonsConfig[2].show = true;
     buttonsConfig[3].show = true;
     buttonsConfig[4].show = true;
-    if (lastStepArray !== null && lastStepArray[courseId]) {
-      displayLastStep(
-        lastStepArray,
-        JSON.parse(localStorage.getItem("courseData"))
-      );
-    }
+    // if (lastStepArray !== null && lastStepArray[courseId]) {
+    //   displayLastStep(
+    //     lastStepArray,
+    //     JSON.parse(localStorage.getItem("courseData"))
+    //   );
+    // }
   }
 
   buttonsConfig.forEach(({ button, show }) => {
     button.style.display = show ? "flex" : "none";
   });
+
+  setTimeout(() => {
+    document.getElementById("preloader").style.display = "none";
+  }, 100);
 }
 
 button1.addEventListener("click", async function () {
   const response = await postDataAdd();
-  let addData = JSON.parse(localStorage.getItem("infoCourse"));
+  // let addData = JSON.parse(localStorage.getItem("infoCourse"));
 
   if (response !== 0) {
-    addData.push(courseInfo);
-    localStorage.setItem("infoCourse", JSON.stringify(addData));
+    // addData.push(courseInfo);
+    // localStorage.setItem("infoCourse", JSON.stringify(addData));
 
     text.style.animation = "fadeOut 10ms ease";
     star1.style.animation = "fadeOut 50ms ease";
@@ -286,20 +273,16 @@ button1.addEventListener("click", async function () {
 
 async function postDataAdd() {
   try {
+    const body = {
+      courseId: courseId,
+    };
     const response = await fetchData(
-      `user/${userId}/favorite-course?courseId=${courseId}`,
+      `user/favorite-course`,
       "POST",
-      null,
+      { "X-User-Id": userId },
+      body,
       false
     );
-    if (response === 200) {
-      if (lastStepArray !== null && lastStepArray[courseId]) {
-        displayLastStep(
-          lastStepArray,
-          JSON.parse(localStorage.getItem("courseData"))
-        );
-      }
-    }
   } catch {
     alert("Не удалось установить соединение с сервером");
     return 0;
@@ -321,13 +304,13 @@ document.addEventListener("click", function (event) {
 
 yesButton.addEventListener("click", async function () {
   modal.style.display = "none";
-  let remData = JSON.parse(localStorage.getItem("infoCourse"));
+  // let remData = JSON.parse(localStorage.getItem("infoCourse"));
 
   const response = await postDataRemove();
 
   if (response !== 0) {
-    remData = remData.filter((item) => item.id !== Number(courseId));
-    localStorage.setItem("infoCourse", JSON.stringify(remData));
+    // remData = remData.filter((item) => item.id !== Number(courseId));
+    // localStorage.setItem("infoCourse", JSON.stringify(remData));
 
     button3.style.animation = "fadeOut 150ms ease";
     setTimeout(() => {
@@ -361,17 +344,17 @@ yesButton.addEventListener("click", async function () {
 
 async function postDataRemove() {
   try {
+    const body = {
+      courseId: courseId,
+    };
     const response = await fetchData(
-      `user/${userId}/favorite-course?courseId=${courseId}`,
+      `user/favorite-course`,
       "DELETE",
-      null,
+      { "X-User-Id": userId },
+      body,
       false
     );
-    if (response === 200) {
-      if (lastStepArray !== null && lastStepArray[courseId]) {
-        lastStepBlock.style.display = "none";
-      }
-    }
+
   } catch {
     alert("Не удалось установить соединение с сервером");
     return 0;
@@ -379,7 +362,7 @@ async function postDataRemove() {
 }
 
 button3.addEventListener("click", function () {
-  window.location.href = `syllabus.html?v=1.0.4&id=${courseId}`;
+  window.location.href = `syllabus.html?v=1.0.5&id=${courseId}`;
 });
 
 let refer = document.referrer.split("/").pop();

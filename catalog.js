@@ -5,30 +5,20 @@ localStorage.removeItem("courseData");
 const tg = window.Telegram.WebApp;
 const userId = tg.initDataUnsafe.user.id;
 
-let coursesData = [];
-
 async function fetchCourses() {
-  const cachedCourses = localStorage.getItem("catalogData");
-  if (cachedCourses) {
-    coursesData = JSON.parse(cachedCourses);
-
-    displayCourses();
-  } else {
-    coursesData = await fetchData("course/all");
-    localStorage.setItem("catalogData", JSON.stringify(coursesData));
-    displayCourses();
-  }
+  const coursesData = await fetchData("course/all", "GET", {
+    "X-User-Id": userId,
+  });
+  displayCourses(coursesData);
 }
 
 fetchCourses();
 
 function setupFavoriteCourse(courseData) {
   const addMark = document.getElementById(`favoriteMark${courseData.id}`);
-  const idCourse = JSON.parse(localStorage.getItem("infoCourse"))?.map(
-    (course) => course.id
-  );
+  
 
-  if (idCourse && idCourse.includes(Number(courseData.id))) {
+  if (courseData.favorite === true) {
     addMark.innerHTML += `<div class="courses-block-favorite" style="display: flex;">
           <svg
             class="courses-block-favorite-icon"
@@ -50,7 +40,7 @@ function setupFavoriteCourse(courseData) {
   }
 }
 
-function displayCourses() {
+function displayCourses(coursesData) {
   document.getElementById("preloader").style.display = "none";
   const coursesDiv = document.getElementById("courses");
   let rating = null;
@@ -63,7 +53,7 @@ function displayCourses() {
 
     setTimeout(() => {
       const courseElement = document.createElement("a");
-      courseElement.href = `courses.html?v=1.0.4&id=${course.id}`;
+      courseElement.href = `courses.html?v=1.0.5&id=${course.id}`;
       courseElement.classList.add("courses-block");
       courseElement.innerHTML = `
           <img src="${course.iconUrl}" class="courses-logo" />

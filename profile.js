@@ -14,7 +14,7 @@ const course = document.getElementById("course-info");
 const tg = window.Telegram.WebApp;
 const userIdData = tg.initDataUnsafe.user.id;
 
-const userPhoto = tg.initDataUnsafe.user.photo_url;
+const userPhoto = "tg.initDataUnsafe.user.photo_url";
 let userName;
 
 if (tg.initDataUnsafe.user.username) {
@@ -47,14 +47,17 @@ const setUserNameProfile = (name) => {
 setUserNameProfile(userName);
 
 async function getUserInfo() {
-  const userInfo = await fetchData(`user/${userIdData}/profile/info`, "GET");
+  const userInfo = await fetchData(`user/profile/info`, "GET", {
+    "X-User-Id": userIdData,
+  });
+
   const formattedBalance = Number.isInteger(userInfo.balance)
     ? userInfo.balance.toString()
     : userInfo.balance.toFixed(2);
 
   balanceText.innerText = formattedBalance;
 
-  if (userInfo.coursesProgress.length !== 0) {
+  if (userInfo.coursesProgress.length != 0) {
     displayProgress(userInfo);
   } else {
     displayNotProgress();
@@ -63,7 +66,9 @@ async function getUserInfo() {
 
 async function getTasks() {
   await getUserInfo();
-  const tasksInfo = await fetchData(`task/all?userId=${userIdData}`, "GET");
+  const tasksInfo = await fetchData(`task/all`, "GET", {
+    "X-User-Id": userIdData,
+  });
 
   tasksInfo.length !== 0 ? displayTasks(tasksInfo) : displayNotTasks();
 }
@@ -72,8 +77,9 @@ getTasks();
 
 async function checkTask(task) {
   const taskCheckInfo = await fetchData(
-    `task/${task.taskId}/completed?userId=${userIdData}`,
-    "POST"
+    `task/${task.taskId}/completed`,
+    "POST",
+    { "X-User-Id": userIdData }
   );
 
   const buttonTask = document.getElementById(`task${task.taskId}`);

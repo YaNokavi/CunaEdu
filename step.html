@@ -55,7 +55,7 @@
     />
     <title>Cryptuna</title>
 
-    <link rel="stylesheet" type="text/css" href="styles.css?v=1.0.4" />
+    <link rel="stylesheet" type="text/css" href="styles.css?v=1.0.5" />
     <script src="https://telegram.org/js/telegram-web-app.js?56"></script>
     <script src="platform.js"></script>
   </head>
@@ -93,7 +93,41 @@
             />
           </svg>
         </a>
-        <div class="steps-number" id="steps-number"></div>
+        <div class="steps-number">
+          <div class="button-navigation" id="button-navigation">
+            <svg
+              style="color: var(--theme-button-hint-icon-text-color)"
+              width="20"
+              height="20"
+              viewBox="0 0 28 28"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M3.875 14H24.875"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M3.875 7H24.875"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M3.875 21H24.875"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </div>
+          <span id="steps-count"></span>
+        </div>
 
         <a class="button-forward" id="button-forward">
           <svg
@@ -171,7 +205,7 @@
     </div>
 
     <div class="tab-bar" id="tab">
-      <a href="friends.html?v=1.0.4" class="tab-item">
+      <a href="friends.html?v=1.0.5" class="tab-item">
         <svg
           class="tab-icon"
           width="28"
@@ -225,7 +259,7 @@
         <div class="tab-label">Друзья</div>
       </a>
 
-      <a href="top.html?v=1.0.4" class="tab-item">
+      <a href="top.html?v=1.0.5" class="tab-item">
         <svg
           class="tab-icon"
           width="29"
@@ -258,7 +292,7 @@
         <div class="tab-label">Знатоки</div>
       </a>
 
-      <a href="catalog.html?v=1.0.4" class="tab-item" id="catalog">
+      <a href="catalog.html?v=1.0.5" class="tab-item" id="catalog">
         <svg
           class="tab-icon"
           width="28"
@@ -293,7 +327,7 @@
         <div class="tab-label">Каталог</div>
       </a>
 
-      <a href="favorite.html?v=1.0.4" class="tab-item" id="favor">
+      <a href="favorite.html?v=1.0.5" class="tab-item" id="favor">
         <svg
           class="tab-icon"
           width="28"
@@ -321,7 +355,7 @@
         <div class="tab-label">Мои курсы</div>
       </a>
 
-      <a href="profile.html?v=1.0.4" class="tab-item">
+      <a href="profile.html?v=1.0.5" class="tab-item">
         <svg
           class="tab-icon"
           width="28"
@@ -357,8 +391,8 @@
       </a>
     </div>
 
-    <script type="module" src="step.js?v=1.0.4"></script>
+    <script type="module" src="step.js?v=1.0.5"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
-    <script src="iview.js?v=1.0.4"></script>
+    <script src="iview.js?v=1.0.5"></script>
   </body>
 </html>

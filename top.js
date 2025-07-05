@@ -41,6 +41,7 @@ function startCountdown(endDate) {
 
 const tg = window.Telegram.WebApp;
 const userId = tg.initDataUnsafe.user.id;
+
 const avatarUrl = tg.initDataUnsafe.user.photo_url;
 let username;
 let logoname;
@@ -54,9 +55,9 @@ if (tg.initDataUnsafe.user.username) {
 }
 
 async function getTopUsers() {
-  const topUsers = await fetchData(
-    `event/student-competition?userId=${userId}`
-  );
+  const topUsers = await fetchData(`event/student-competition`, "GET", {
+    "X-User-Id": userId,
+  });
 
   startCountdown(topUsers.eventEndDate);
   displayTopUsers(topUsers);

@@ -1,16 +1,5 @@
 import fetchData from "./fetch.js";
 
-const retry = async (fn, maxAttempts = 3) => {
-  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-    try {
-      return await fn();
-    } catch (error) {
-      if (attempt === maxAttempts) throw error;
-      await new Promise((res) => setTimeout(res, 500 * attempt));
-    }
-  }
-};
-
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
 const courseId = Number(urlParams.get("idCourse"));
@@ -34,14 +23,19 @@ const buttonConfirmDelete = document.getElementById("yesButton");
 const buttonCancelDelete = document.getElementById("noButton");
 
 async function sendComment(comment, rating) {
-  let body = {
-    userId: userId,
+  const body = {
     rating: rating,
     comment: comment,
   };
 
   try {
-    await fetchData(`course/${courseId}/review`, "POST", body, false);
+    await fetchData(
+      `course/${courseId}/review`,
+      "POST",
+      { "X-User-Id": userId },
+      body,
+      false
+    );
     getReviews("NEW_FIRST", false);
   } catch (error) {
     console.error("Ошибка при отправке коммента:", error);
@@ -49,14 +43,14 @@ async function sendComment(comment, rating) {
 }
 
 async function changeComment(reviewId, comment, rating) {
-  let body = {
+  const body = {
     reviewId: reviewId,
     rating: rating,
     comment: comment,
   };
 
   try {
-    await fetchData(`course/${courseId}/review`, "PUT", body, false);
+    await fetchData(`course/${courseId}/review`, "PUT", {}, body, false);
     getReviews("NEW_FIRST", false);
   } catch (error) {
     console.error("Ошибка при отправке коммента:", error);
@@ -65,12 +59,11 @@ async function changeComment(reviewId, comment, rating) {
 
 async function deleteComment(reviewId) {
   try {
-    await fetchData(
-      `course/${courseId}/review?reviewId=${reviewId}`,
-      "DELETE",
-      null,
-      false
-    );
+    const body = {
+      reviewId: reviewId,
+    };
+
+    await fetchData(`course/${courseId}/review`, "DELETE", {}, body, false);
 
     modal.style.display = "none";
     buttonWriteComment.style.display = "flex";
@@ -272,12 +265,17 @@ function displayRating(ratingInfo) {
 
 const commentsBlock = document.getElementById("comments");
 
-async function sendUserReaction(reviewId, reactorId, reaction) {
+async function sendUserReaction(reviewId, reaction) {
   try {
+    const body = {
+      reaction: reaction,
+    };
+
     const response = await fetchData(
-      `course/review/${reviewId}/reaction?reactorId=${reactorId}&reaction=${reaction}`,
+      `course/review/${reviewId}/reaction`,
       "POST",
-      null,
+      { "X-User-Id": userId },
+      body,
       false
     );
 
@@ -287,12 +285,17 @@ async function sendUserReaction(reviewId, reactorId, reaction) {
   }
 }
 
-async function updateUserReaction(reviewId, reactorId, reaction) {
+async function updateUserReaction(reviewId, reaction) {
   try {
+    const body = {
+      reaction: reaction,
+    };
+
     const response = await fetchData(
-      `course/review/${reviewId}/reaction?reactorId=${reactorId}&reaction=${reaction}`,
+      `course/review/${reviewId}/reaction`,
       "PUT",
-      null,
+      { "X-User-Id": userId },
+      body,
       false
     );
     return response;
@@ -301,11 +304,12 @@ async function updateUserReaction(reviewId, reactorId, reaction) {
   }
 }
 
-async function deleteUserReaction(reviewId, reactorId) {
+async function deleteUserReaction(reviewId) {
   try {
     const response = await fetchData(
-      `course/review/${reviewId}/reaction?reactorId=${reactorId}`,
+      `course/review/${reviewId}/reaction`,
       "DELETE",
+      { "X-User-Id": userId },
       null,
       false
     );
@@ -345,10 +349,7 @@ function addListenerOnUserMarks(courseReviews) {
 
         try {
           // Дожидаемся ответа от сервера
-          const response = await retry(() =>
-            deleteUserReaction(review.reviewId, userId)
-          );
-          console.log(response);
+          const response = await deleteUserReaction(review.reviewId);
 
           // Если сервер вернул ошибку
           if (response !== 200) {
@@ -376,17 +377,11 @@ function addListenerOnUserMarks(courseReviews) {
             dislikeMark.classList.remove("active");
             dislikeCount.textContent = Number(dislikeCount.textContent) - 1;
 
-            response = await retry(() =>
-              updateUserReaction(review.reviewId, userId, "LIKE")
-            );
+            response = await updateUserReaction(review.reviewId, "LIKE");
           } else {
             // Новый лайк
-            response = await retry(() =>
-              sendUserReaction(review.reviewId, userId, "LIKE")
-            );
+            response = await sendUserReaction(review.reviewId, "LIKE");
           }
-
-          console.log(response);
 
           // Если сервер вернул ошибку
           if (response !== 200) {
@@ -431,10 +426,7 @@ function addListenerOnUserMarks(courseReviews) {
           dislikeCount.textContent = Number(dislikeCount.textContent) - 1;
 
           // Дожидаемся ответа от сервера
-          const response = await retry(() =>
-            deleteUserReaction(review.reviewId, userId)
-          );
-          console.log(response);
+          const response = await deleteUserReaction(review.reviewId);
 
           // Если сервер вернул ошибку
           if (response !== 200) {
@@ -451,17 +443,11 @@ function addListenerOnUserMarks(courseReviews) {
             likeMark.classList.remove("active");
             likeCount.textContent = Number(likeCount.textContent) - 1;
 
-            response = await retry(() =>
-              updateUserReaction(review.reviewId, userId, "DISLIKE")
-            );
+            response = await updateUserReaction(review.reviewId, "DISLIKE");
           } else {
             // Новый дизлайк
-            response = await retry(() =>
-              sendUserReaction(review.reviewId, userId, "DISLIKE")
-            );
+            response = await sendUserReaction(review.reviewId, "DISLIKE");
           }
-
-          console.log(response);
 
           // Если сервер вернул ошибку
           if (response !== 200) {
@@ -781,14 +767,14 @@ function displayComments(courseReviews) {
 let reviews;
 async function getReviews(sortType, filter) {
   reviews = await fetchData(
-    `course/${courseId}/reviews?userId=${userId}&sort=${sortType}`
+    `course/${courseId}/reviews?sort=${sortType}`,
+    "GET",
+    { "X-User-Id": userId }
   );
 
   displayComments(reviews.courseReviews);
 
   displayRating(reviews.courseRatingInfo);
-
-  // console.log(reviews.currentUserReview)
 
   if (reviews.currentUserReview && !filter) {
     buttonWriteComment.style.display = "none";

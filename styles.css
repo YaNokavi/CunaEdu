@@ -44,6 +44,23 @@ body {
 a:active {
   color: var(--theme-block-border-color); /* Цвет ссылки при нажатии */
 }
+
+p {
+  margin-block-end: 0em;
+}
+
+h1 {
+  text-align: center;
+  margin-bottom: 5px;
+  margin-top: 30px;
+  line-height: 40px;
+}
+
+h3 {
+  align-self: center;
+  margin-bottom: 0.5em;
+}
+
 /*Заголовок страницы*/
 .profile-header {
   display: flex;
@@ -74,7 +91,6 @@ a:active {
 .profile-title {
   position: fixed;
   margin-top: 5px;
-  animation: ani 0.4s forwards;
 }
 /*Главный экран прокрутки*/
 .main-block {
@@ -296,7 +312,7 @@ a:active {
   font: 600 24px/1 Inter, sans-serif;
   text-align: left;
   font-style: normal;
-  line-height: 15px;
+  line-height: 22px;
   letter-spacing: -0.43px;
 
   /* color: #000000; */
@@ -404,7 +420,7 @@ a:active {
   font: 600 24px/1 Inter, sans-serif;
   text-align: left;
   font-style: normal;
-  line-height: 15px;
+  line-height: 22px;
   letter-spacing: -0.43px;
 
   /* color: #000000; */
@@ -575,7 +591,7 @@ a:active {
   font: 600 24px/1 Inter, sans-serif;
   text-align: left;
   font-style: normal;
-  line-height: 15px;
+  line-height: 22px;
   letter-spacing: -0.43px;
 
   color: var(--theme-text-color);
@@ -2401,7 +2417,7 @@ ul.modal-list-days-reward {
   margin-bottom: 15px;
   font: 400 16px/1 Inter, sans-serif;
   font-style: normal;
-  line-height: 25px;
+  line-height: 24px;
   text-align: left;
   /* color: #000000; */
   color: var(--theme-text-color);
@@ -2582,18 +2598,6 @@ ul.modal-list-days-reward {
   background-color: #d4edda; /* Светло-зеленый фон */
   color: #155724; /* Темно-зеленый текст */
   border: 1px solid #c3e6cb; /* Зеленая рамка */
-}
-
-p {
-  margin-block-end: 0em;
-  /* margin-block-start: 10px; */
-}
-
-h1 {
-  text-align: center;
-  margin-bottom: 5px;
-  margin-top: 30px;
-  line-height: 30px;
 }
 
 /*Отключение отображения прокрутки*/

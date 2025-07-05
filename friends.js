@@ -2,6 +2,7 @@ import fetchData from "./fetch.js";
 
 const tg = window.Telegram.WebApp;
 const userId = tg.initDataUnsafe.user.id;
+
 const avatarUrl = tg.initDataUnsafe.user.photo_url;
 let username;
 let logoname;
@@ -15,7 +16,7 @@ if (tg.initDataUnsafe.user.username) {
 }
 
 async function getReferrals() {
-  const referrals = await fetchData(`user/${userId}/referrals`);
+  const referrals = await fetchData(`user/referrals`, "GET", {"X-User-Id": userId});
 
   referrals.length ? displayFriendsNotNull(referrals) : displayFriendsNull();
 }
@@ -61,7 +62,7 @@ function startCountdown(endDate) {
 
 async function getTopUsers() {
   const topUsers = await fetchData(
-    `event/referral-competition?userId=${userId}`
+    `event/referral-competition`, "GET", {"X-User-Id": userId}
   );
 
   startCountdown(topUsers.eventEndDate);

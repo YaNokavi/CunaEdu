@@ -9,7 +9,6 @@ const avatarUrl = tg.initDataUnsafe.user.photo_url;
 
 userIdData = tg.initDataUnsafe.user.id;
 
-
 if (tg.initDataUnsafe.user.username) {
   const name = `${tg.initDataUnsafe.user.username}`;
   username = DOMPurify.sanitize(name);
@@ -18,18 +17,21 @@ if (tg.initDataUnsafe.user.username) {
 }
 
 let flagFirstJoin = JSON.parse(localStorage.getItem("flagFirstJoin"));
-let tabBar = document.querySelectorAll(".tab-item");
 
-if (flagFirstJoin === true) {
-  tabBar.forEach((item) => {
-    item.style.pointerEvents = "none";
-  });
-  sendUserInfo();
-  flagFirstJoin = false;
-  localStorage.setItem("flagFirstJoin", flagFirstJoin);
-} else {
-  getFavoriteCourses();
-}
+let tabBar;
+document.addEventListener("DOMContentLoaded", () => {
+  tabBar = document.querySelectorAll(".tab-item");
+  if (flagFirstJoin === true) {
+    tabBar.forEach((item) => {
+      item.style.pointerEvents = "none";
+    });
+    sendUserInfo();
+    flagFirstJoin = false;
+    localStorage.setItem("flagFirstJoin", flagFirstJoin);
+  } else {
+    getFavoriteCourses();
+  }
+});
 
 const modal = document.getElementById("modal");
 const buttonModal = document.getElementById("okButton");
@@ -57,35 +59,44 @@ function createListRewards(rewards) {
 }
 
 async function sendUserInfo() {
-  let rewards;
+  let referallId = JSON.parse(localStorage.getItem("referallId"));
 
-  const referallId = JSON.parse(localStorage.getItem("referallId"));
-  if (!referallId || referallId === userIdData) {
-    rewards = await fetchData(
-      `user/${userIdData}/login-and-reward?username=${username}&avatarUrl=${avatarUrl}`,
-      "POST"
+  if (referallId && referallId === userIdData) {
+    referallId = null;
+  }
+
+  let body = {};
+
+  body = {
+    username: username,
+    avatarUrl: avatarUrl,
+    referrerId: referallId,
+  };
+  try {
+    const rewards = await fetchData(
+      `user/login-and-reward`,
+      "POST",
+      { "X-User-Id": userIdData },
+      body
     );
-  } else {
-    rewards = await fetchData(
-      `user/${userIdData}/login-and-reward?&username=${username}&avatarUrl=${avatarUrl}&referrerId=${referallId}`,
-      "POST"
-    );
+
+    if (rewards.history !== null) {
+      localStorage.setItem("storiesType", rewards.history);
+      document.getElementById("page").style.display = "flex";
+
+      const event = new Event("storiesReady");
+      window.dispatchEvent(event);
+    }
+
+    if (rewards.firstEntryToday === true) {
+      createListRewards(rewards);
+    }
+
+    disableTab();
+    getFavoriteCourses();
+  } catch (error) {
+    console.error(error, error.status);
   }
-
-  if (rewards.history !== null) {
-    localStorage.setItem("storiesType", rewards.history);
-    document.getElementById("page").style.display = "flex";
-
-    const event = new Event("storiesReady");
-    window.dispatchEvent(event);
-  }
-
-  if (rewards.firstEntryToday === true) {
-    createListRewards(rewards);
-  }
-
-  disableTab();
-  getFavoriteCourses();
 }
 
 async function disableTab() {
@@ -97,13 +108,14 @@ async function disableTab() {
 }
 
 async function getFavoriteCourses() {
-  const courseInfo = await fetchData(
-    `user/${userIdData}/favorite-courses`,
-    "GET"
-  );
-  localStorage.setItem("infoCourse", JSON.stringify(courseInfo));
-
-  courseInfo.length ? displayCourses(courseInfo) : displayButton();
+  try {
+    const courseInfo = await fetchData(`user/favorite-courses`, "GET", {
+      "X-User-Id": userIdData,
+    });
+    courseInfo.length ? displayCourses(courseInfo) : displayButton();
+  } catch (error) {
+    console.error(error, error.status);
+  }
 }
 
 function displayCourses(courseInfo) {
