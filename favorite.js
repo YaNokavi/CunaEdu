@@ -26,8 +26,6 @@ document.addEventListener("DOMContentLoaded", () => {
       item.style.pointerEvents = "none";
     });
     sendUserInfo();
-    flagFirstJoin = false;
-    localStorage.setItem("flagFirstJoin", flagFirstJoin);
   } else {
     getFavoriteCourses();
   }
@@ -92,6 +90,8 @@ async function sendUserInfo() {
       createListRewards(rewards);
     }
 
+    flagFirstJoin = false;
+    localStorage.setItem("flagFirstJoin", flagFirstJoin);
     disableTab();
     getFavoriteCourses();
   } catch (error) {

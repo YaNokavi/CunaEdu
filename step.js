@@ -220,12 +220,12 @@ function displayContent(content, stepId, isTest, isComplete) {
   if (isTest === false) {
     mediaContent.innerHTML = content;
     trackImageLoad();
+    sendProgressText(stepId);
 
-    if (!isComplete) {
-      sendProgressText(stepId);
-    } else {
+    if (isComplete) {
       displayComplete();
     }
+    
   } else {
     const jsonObject = JSON.parse(content);
     const testData = {

@@ -11,8 +11,6 @@ const courseElement = document.getElementById("info");
 const ratingCourse = document.getElementById("rating");
 const amountComments = document.getElementById("amount-comments");
 
-// const lastStepArray = JSON.parse(localStorage.getItem("lastStepArray"));
-
 function displayCourseInfo(course) {
   let author = course.author;
 
@@ -33,29 +31,20 @@ function displayCourseInfo(course) {
   `;
 }
 
-// const lastStepBlock = document.getElementById("last-step-block");
-// const lastStepHref = document.getElementById("last-step");
+const lastStepBlock = document.getElementById("last-step-block");
+const lastStepHref = document.getElementById("last-step");
 
-// function displayLastStep(lastStepArray, courseData) {
-//   lastStepBlock.style.display = "flex";
+function displayLastStep(lastStepArray) {
+  lastStepBlock.style.display = "flex";
+  lastStepHref.innerHTML = `${lastStepArray.submoduleName} - ${lastStepArray.number} шаг`;
+  lastStepHref.href = `step.html?v=1.0.5&courseId=${courseId}&submoduleId=${lastStepArray.submoduleId}&stepNumber=${lastStepArray.number}`;
+}
 
-//   const lastStep = lastStepArray[courseId];
-//   const modules = courseData.courseModuleList.find(
-//     (module) => module.number == lastStep.moduleId
-//   );
-//   const sub =
-//     modules.submoduleList.find((sub) => sub.number == lastStep.submoduleId) ||
-//     null;
-//   const step =
-//     sub.stepList.find((step) => step.number == lastStep.stepId) || null;
-//   lastStepHref.innerHTML = `${sub.name} - ${step.number} шаг`;
-//   lastStepHref.href = `step.html?v=1.0.5&syllabusId=${courseId}&moduleId=${lastStep.moduleId}&submoduleId=${lastStep.submoduleId}&stepId=${lastStep.stepId}`;
-// }
-
-function displayLearning(courseData) {
+function displayLearning(learningOutcomes) {
+  document.getElementById("learnings-block").style.display = "flex";
   const elementLearning = document.getElementById("points");
   elementLearning.innerHTML = "";
-  courseData.learningOutcomes.forEach((elem) => {
+  learningOutcomes.forEach((elem) => {
     const pointElement = document.createElement("div");
     pointElement.style.display = "flex";
     pointElement.style.marginBottom = "10px";
@@ -68,10 +57,10 @@ function displayLearning(courseData) {
   });
 }
 
-function displayModules(courseData) {
+function displayModules(courseModulesInfo) {
   const elementModules = document.getElementById("modules");
   elementModules.innerHTML = "";
-  courseData.courseModulesInfo.forEach((elem) => {
+  courseModulesInfo.forEach((elem) => {
     const moduleMain = document.createElement("div");
     moduleMain.className = "syllabus-text-course-main toggle";
     moduleMain.innerHTML = `${elem.name}`;
@@ -175,16 +164,25 @@ function displayRating(ratingInfo) {
   document.getElementById("preloader").style.display = "none";
 }
 
+let lastStepArray = null;
 async function fetchContent() {
   const courseData = await fetchData(`course/${courseId}/info`, "GET", {
     "X-User-Id": userId,
   });
-  // localStorage.setItem("courseData", JSON.stringify(courseData));
 
-  setupButtons(courseData);
+  if (courseData.lastCompletedStep) {
+    lastStepArray = courseData.lastCompletedStep;
+    if (courseData.favorite) {
+      displayLastStep(lastStepArray);
+    }
+  }
+  setupButtons(courseData.favorite);
   displayCourseInfo(courseData);
-  displayLearning(courseData);
-  displayModules(courseData);
+  if (courseData.learningOutcomes.length !== 0) {
+    displayLearning(courseData.learningOutcomes);
+  }
+
+  displayModules(courseData.courseModulesInfo);
   displayRating(courseData.ratingInfo);
 }
 
@@ -206,7 +204,7 @@ buttonHrefComments.addEventListener("click", function () {
   window.location.href = `rating.html?v=1.0.5&idCourse=${courseId}`;
 });
 
-function setupButtons(courseData) {
+function setupButtons(isFavorite) {
   let buttonsConfig = [
     { button: button1, show: true },
     { button: star1, show: true },
@@ -215,41 +213,26 @@ function setupButtons(courseData) {
     { button: star2, show: false },
   ];
 
-  // const idCourse = JSON.parse(localStorage.getItem("infoCourse"))?.map(
-  //   (course) => course.id
-  // );
-
-  if (courseData.favorite === true) {
+  if (isFavorite === true) {
     buttonsConfig[0].show = false;
     buttonsConfig[1].show = false;
     buttonsConfig[2].show = true;
     buttonsConfig[3].show = true;
     buttonsConfig[4].show = true;
-    // if (lastStepArray !== null && lastStepArray[courseId]) {
-    //   displayLastStep(
-    //     lastStepArray,
-    //     JSON.parse(localStorage.getItem("courseData"))
-    //   );
-    // }
   }
 
   buttonsConfig.forEach(({ button, show }) => {
     button.style.display = show ? "flex" : "none";
   });
-
-  setTimeout(() => {
-    document.getElementById("preloader").style.display = "none";
-  }, 100);
 }
 
 button1.addEventListener("click", async function () {
   const response = await postDataAdd();
-  // let addData = JSON.parse(localStorage.getItem("infoCourse"));
 
   if (response !== 0) {
-    // addData.push(courseInfo);
-    // localStorage.setItem("infoCourse", JSON.stringify(addData));
-
+    if (lastStepArray) {
+      displayLastStep(lastStepArray);
+    }
     text.style.animation = "fadeOut 10ms ease";
     star1.style.animation = "fadeOut 50ms ease";
     setTimeout(() => {
@@ -292,6 +275,7 @@ async function postDataAdd() {
 button2.addEventListener("click", function () {
   modal.style.display = "block";
 });
+
 noButton.addEventListener("click", function () {
   modal.style.display = "none";
 });
@@ -304,14 +288,11 @@ document.addEventListener("click", function (event) {
 
 yesButton.addEventListener("click", async function () {
   modal.style.display = "none";
-  // let remData = JSON.parse(localStorage.getItem("infoCourse"));
 
   const response = await postDataRemove();
 
   if (response !== 0) {
-    // remData = remData.filter((item) => item.id !== Number(courseId));
-    // localStorage.setItem("infoCourse", JSON.stringify(remData));
-
+    lastStepBlock.style.display = "none";
     button3.style.animation = "fadeOut 150ms ease";
     setTimeout(() => {
       button3.style.display = "none";
@@ -354,7 +335,6 @@ async function postDataRemove() {
       body,
       false
     );
-
   } catch {
     alert("Не удалось установить соединение с сервером");
     return 0;

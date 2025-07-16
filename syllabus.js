@@ -49,13 +49,6 @@ function displayModules(modulesData) {
 
       submoduleLink.href = `step.html?v=1.0.5&courseId=${courseId}&submoduleId=${submodule.id}&stepNumber=1`;
 
-      // let steps = [];
-      // submodule.stepList.forEach((step) => {
-      //   if (step.completed) {
-      //     steps.push("1");
-      //   }
-      // });
-
       const stepProgress = createElement(
         "div",
         "syllabus-step-pogress",
