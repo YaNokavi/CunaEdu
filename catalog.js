@@ -53,7 +53,7 @@ function displayCourses(coursesData) {
 
     setTimeout(() => {
       const courseElement = document.createElement("a");
-      courseElement.href = `courses.html?v=1.0.5&id=${course.id}`;
+      courseElement.href = `courses.html?v=1.0.6&id=${course.id}`;
       courseElement.classList.add("courses-block");
       courseElement.innerHTML = `
           <img src="${course.iconUrl}" class="courses-logo" />

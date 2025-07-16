@@ -119,7 +119,7 @@ function createNavigationMenu(stepsData) {
       listStepItem.append(svgActive);
     } else {
       listStepItem.addEventListener("click", function () {
-        window.location.href = `step.html?v=1.0.5&courseId=${courseId}&submoduleId=${submoduleId}&stepNumber=${step.number}`;
+        window.location.href = `step.html?v=1.0.6&courseId=${courseId}&submoduleId=${submoduleId}&stepNumber=${step.number}`;
       });
     }
     navigationList.append(listStepItem);
@@ -456,21 +456,21 @@ function setButtonHref(buttons, stepsData) {
   buttons.forEach((button) => {
     if (button.buttonType === "BACK") {
       if (stepNumber !== 1) {
-        href = `step.html?v=1.0.5&courseId=${courseId}&submoduleId=${submoduleId}&stepNumber=${
+        href = `step.html?v=1.0.6&courseId=${courseId}&submoduleId=${submoduleId}&stepNumber=${
           stepNumber - 1
         }`;
       } else if (previousSubmoduleId !== null) {
-        href = `step.html?v=1.0.5&courseId=${courseId}&submoduleId=${previousSubmoduleId}&stepNumber=1`;
+        href = `step.html?v=1.0.6&courseId=${courseId}&submoduleId=${previousSubmoduleId}&stepNumber=1`;
       }
     } else if (button.buttonType === "FORWARD") {
       if (stepNumber !== stepsLength) {
-        href = `step.html?v=1.0.5&courseId=${courseId}&submoduleId=${submoduleId}&stepNumber=${
+        href = `step.html?v=1.0.6&courseId=${courseId}&submoduleId=${submoduleId}&stepNumber=${
           stepNumber + 1
         }`;
       } else if (nextSubmoduleId !== null) {
-        href = `step.html?v=1.0.5&courseId=${courseId}&submoduleId=${nextSubmoduleId}&stepNumber=1`;
+        href = `step.html?v=1.0.6&courseId=${courseId}&submoduleId=${nextSubmoduleId}&stepNumber=1`;
       } else if (nextSubmoduleId === null) {
-        href = `syllabus.html?v=1.0.5&id=${courseId}`;
+        href = `syllabus.html?v=1.0.6&id=${courseId}`;
       }
     }
 

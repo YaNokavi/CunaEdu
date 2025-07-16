@@ -47,7 +47,7 @@ function displayModules(modulesData) {
         `${module.number}.${submodule.number} ${submodule.name}`
       );
 
-      submoduleLink.href = `step.html?v=1.0.5&courseId=${courseId}&submoduleId=${submodule.id}&stepNumber=1`;
+      submoduleLink.href = `step.html?v=1.0.6&courseId=${courseId}&submoduleId=${submodule.id}&stepNumber=1`;
 
       const stepProgress = createElement(
         "div",

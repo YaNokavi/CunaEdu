@@ -244,9 +244,9 @@ if (
   currentUrl.endsWith("syllabus.html") ||
   currentUrl.endsWith("rating.html")
 ) {
-  link = `courses.html?v=1.0.5&id=${idCourse}`;
+  link = `courses.html?v=1.0.6&id=${idCourse}`;
 } else if (currentUrl.endsWith("step.html")) {
-  link = `syllabus.html?v=1.0.5&id=${idCourse}`;
+  link = `syllabus.html?v=1.0.6&id=${idCourse}`;
 }
 
 tg.onEvent("backButtonClicked", function () {

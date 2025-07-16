@@ -37,7 +37,7 @@ const lastStepHref = document.getElementById("last-step");
 function displayLastStep(lastStepArray) {
   lastStepBlock.style.display = "flex";
   lastStepHref.innerHTML = `${lastStepArray.submoduleName} - ${lastStepArray.number} шаг`;
-  lastStepHref.href = `step.html?v=1.0.5&courseId=${courseId}&submoduleId=${lastStepArray.submoduleId}&stepNumber=${lastStepArray.number}`;
+  lastStepHref.href = `step.html?v=1.0.6&courseId=${courseId}&submoduleId=${lastStepArray.submoduleId}&stepNumber=${lastStepArray.number}`;
 }
 
 function displayLearning(learningOutcomes) {
@@ -201,7 +201,7 @@ const yesButton = document.getElementById("yesButton");
 const noButton = document.getElementById("noButton");
 
 buttonHrefComments.addEventListener("click", function () {
-  window.location.href = `rating.html?v=1.0.5&idCourse=${courseId}`;
+  window.location.href = `rating.html?v=1.0.6&idCourse=${courseId}`;
 });
 
 function setupButtons(isFavorite) {
@@ -342,7 +342,7 @@ async function postDataRemove() {
 }
 
 button3.addEventListener("click", function () {
-  window.location.href = `syllabus.html?v=1.0.5&id=${courseId}`;
+  window.location.href = `syllabus.html?v=1.0.6&id=${courseId}`;
 });
 
 let refer = document.referrer.split("/").pop();
