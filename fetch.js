@@ -17,8 +17,7 @@ async function fetchData(
         body: body ? JSON.stringify(body) : null,
       };
 
-      // const urlDomain = "https://cryptuna-anderm.amvera.io/v1/" + url;
-      const urlDomain = "https://cryptunatest-anderm.amvera.io/v1/" + url;
+      const urlDomain = "https://cryptuna-anderm.amvera.io/v1/" + url;
 
       const response = await fetch(urlDomain, options);
 
