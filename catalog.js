@@ -56,7 +56,7 @@ class CatalogUI {
 
       setTimeout(() => {
         const courseElement = document.createElement("a");
-        courseElement.href = `courses.html?v=1.0.7&courseId=${course.id}`;
+        courseElement.href = `courses.html?v=2.0.0&courseId=${course.id}`;
         courseElement.classList.add("block");
         courseElement.classList.add("courses-block");
         courseElement.innerHTML = `

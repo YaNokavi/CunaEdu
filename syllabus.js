@@ -68,7 +68,7 @@ class SyllabusUI {
           `${module.number}.${submodule.number} ${submodule.name}`
         );
 
-        submoduleLink.href = `step.html?v=1.0.7&courseId=${this.courseId}&submoduleId=${submodule.id}&stepNumber=1`;
+        submoduleLink.href = `step.html?v=2.0.0&courseId=${this.courseId}&submoduleId=${submodule.id}&stepNumber=1`;
 
         const stepProgress = this.createElement(
           "div",

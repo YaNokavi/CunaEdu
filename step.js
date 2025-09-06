@@ -45,21 +45,21 @@ function setButtonHref(
     if (buttonType === "BACK") {
       href =
         stepNumber > 1
-          ? `step.html?v=1.0.7&courseId=${courseId}&submoduleId=${submoduleId}&stepNumber=${
+          ? `step.html?v=2.0.0&courseId=${courseId}&submoduleId=${submoduleId}&stepNumber=${
               stepNumber - 1
             }`
           : previousSubmoduleId
-          ? `step.html?v=1.0.7&courseId=${courseId}&submoduleId=${previousSubmoduleId}&stepNumber=1`
+          ? `step.html?v=2.0.0&courseId=${courseId}&submoduleId=${previousSubmoduleId}&stepNumber=1`
           : null;
     } else {
       href =
         stepNumber < stepsLength
-          ? `step.html?v=1.0.7&courseId=${courseId}&submoduleId=${submoduleId}&stepNumber=${
+          ? `step.html?v=2.0.0&courseId=${courseId}&submoduleId=${submoduleId}&stepNumber=${
               stepNumber + 1
             }`
           : nextSubmoduleId
-          ? `step.html?v=1.0.7&courseId=${courseId}&submoduleId=${nextSubmoduleId}&stepNumber=1`
-          : `syllabus.html?v=1.0.7&courseId=${courseId}`;
+          ? `step.html?v=2.0.0&courseId=${courseId}&submoduleId=${nextSubmoduleId}&stepNumber=1`
+          : `syllabus.html?v=2.0.0&courseId=${courseId}`;
     }
 
     href ? (buttonHtml.href = href) : buttonHtml.removeAttribute("href");
@@ -449,7 +449,7 @@ class StepUI {
         listStepItem.append(svgActive);
       } else {
         listStepItem.addEventListener("click", function () {
-          window.location.href = `step.html?v=1.0.7&courseId=${courseId}&submoduleId=${submoduleId}&stepNumber=${step.number}`;
+          window.location.href = `step.html?v=2.0.0&courseId=${courseId}&submoduleId=${submoduleId}&stepNumber=${step.number}`;
         });
       }
       navigationList.append(listStepItem);

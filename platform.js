@@ -261,9 +261,9 @@ if (
   currentUrl.endsWith("syllabus.html") ||
   currentUrl.endsWith("rating.html")
 ) {
-  link = `courses.html?v=1.0.7&courseId=${courseId}`;
+  link = `courses.html?v=2.0.0&courseId=${courseId}`;
 } else if (currentUrl.endsWith("step.html")) {
-  link = `syllabus.html?v=1.0.7&courseId=${courseId}`;
+  link = `syllabus.html?v=2.0.0&courseId=${courseId}`;
 }
 
 tg.onEvent("backButtonClicked", function () {

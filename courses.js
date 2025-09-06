@@ -90,7 +90,7 @@ class CourseUI {
     }
     this.lastStepBlock.style.display = "flex";
     this.lastStepHref.innerHTML = `${step.submoduleName} - ${step.number} шаг`;
-    this.lastStepHref.href = `step.html?v=1.0.7&courseId=${this.courseId}&submoduleId=${step.submoduleId}&stepNumber=${step.number}`;
+    this.lastStepHref.href = `step.html?v=2.0.0&courseId=${this.courseId}&submoduleId=${step.submoduleId}&stepNumber=${step.number}`;
   }
 
   displayLearning() {
@@ -308,7 +308,7 @@ class CourseController {
 
   goCourse() {
     // Переход к курсу
-    window.location.href = `syllabus.html?v=1.0.7&courseId=${this.courseId}`;
+    window.location.href = `syllabus.html?v=2.0.0&courseId=${this.courseId}`;
   }
 }
 
@@ -333,7 +333,7 @@ class CourseButtons {
 
   _bindEvents() {
     this.buttonHrefComments.addEventListener("click", () => {
-      window.location.href = `rating.html?v=1.0.7&courseId=${courseId}`;
+      window.location.href = `rating.html?v=2.0.0&courseId=${courseId}`;
     });
 
     this.addCourseButton.addEventListener("click", async () => {
