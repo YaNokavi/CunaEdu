@@ -1,173 +1,218 @@
 import fetchData from "./fetch.js";
 
-const tg = window.Telegram.WebApp;
-const userId = tg.initDataUnsafe.user.id;
+class FriendsController {
+  constructor(userId) {
+    this.userId = userId;
 
-const avatarUrl = tg.initDataUnsafe.user.photo_url;
-let username;
-let logoname;
-if (tg.initDataUnsafe.user.username) {
-  logoname = `${tg.initDataUnsafe.user.username}`[0].toUpperCase();
-  const name = `${tg.initDataUnsafe.user.username}`;
-  username = DOMPurify.sanitize(name);
-} else {
-  logoname = "U";
-  username = "User";
-}
-
-async function getReferrals() {
-  const referrals = await fetchData(`user/referrals`, "GET", {"X-User-Id": userId});
-
-  referrals.length ? displayFriendsNotNull(referrals) : displayFriendsNull();
-}
-
-getReferrals();
-
-function startCountdown(endDate) {
-  var countDownDate = new Date(endDate).getTime();
-
-  var x = setInterval(function () {
-    // Получение текущей даты и времени
-    var now = new Date().getTime();
-
-    // Расчёт оставшегося времени
-    var distance = countDownDate - now;
-
-    // Расчёт дней, часов, минут и секунд
-    var days = Math.floor(distance / (1000 * 60 * 60 * 24));
-    var hours = Math.floor(
-      (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+    this.friendsUI = new FriendsUI(
+      "friends",
+      "list-referrals-top",
+      "timer",
+      this.userId
     );
-    var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-    var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-    // Отображение результата
-    let displayString = "";
-    if (days > 0) displayString += days + "д ";
-    if (hours > 0 || days > 0) displayString += hours + "ч "; // Show hours if there are days
-    if (minutes > 0 || hours > 0 || days > 0) displayString += minutes + "м "; // Show minutes if there are hours or days
-    displayString += seconds + "с";
-
-    // Update the timer display
-    document.getElementById("timer").innerHTML = displayString;
-
-    // Если таймер истёк, отображение сообщения
-    document.getElementById("preloader").style.display = "none";
-    if (distance < 0) {
-      clearInterval(x);
-      document.getElementById("timer").innerHTML = "Награды уже в пути!";
-    }
-  }, 1000);
-}
-
-async function getTopUsers() {
-  const topUsers = await fetchData(
-    `event/referral-competition`, "GET", {"X-User-Id": userId}
-  );
-
-  startCountdown(topUsers.eventEndDate);
-  displayTopUsers(topUsers);
-}
-
-getTopUsers();
-
-function displayTopUsers(topUsers) {
-  let placeClass;
-  if (topUsers.userPlace === 1) {
-    placeClass = "first";
-  } else if (topUsers.userPlace === 2) {
-    placeClass = "second";
-  } else if (topUsers.userPlace === 3) {
-    placeClass = "third";
-  } else {
-    placeClass = "";
   }
 
-  const listFriends = document.getElementById("list-referrals-top");
-  const listUser = document.createElement("div");
-  listUser.classList.add("list-user");
-  listUser.innerHTML = `
+  async getReferrals() {
+    try {
+      const referrals = await fetchData(`user/referrals`, "GET", {
+        "X-User-Id": this.userId,
+      });
+
+      referrals.length
+        ? this.friendsUI.displayFriendsNotNull(referrals)
+        : this.friendsUI.displayFriendsNull();
+    } catch (error) {
+      console.error("Не удалось получить список друзей", error, error.status);
+    }
+  }
+
+  async getTopUsers() {
+    try {
+      const topUsers = await fetchData(`event/referral-competition`, "GET", {
+        "X-User-Id": this.userId,
+      });
+
+      this.friendsUI.startCountdown(topUsers.eventEndDate);
+      this.friendsUI.displayTopUsers(topUsers);
+    } catch (error) {
+      console.error("Не удалось получить топ рефералов", error, error.status);
+    }
+  }
+}
+
+class FriendsUI {
+  constructor(referralsContainer, topUsersContainer, blockTimerId, userId) {
+    this.referralsContainer = document.getElementById(referralsContainer);
+    this.topUsersContainer = document.getElementById(topUsersContainer);
+    this.blockTimerId = document.getElementById(blockTimerId);
+    this.userId = userId;
+
+    this.buttons = new FriendsButtons();
+  }
+
+  startCountdown(endDate) {
+    const countDownDate = new Date(endDate).getTime();
+    const timerElement = this.blockTimerId;
+    const preloader = document.getElementById("preloader");
+
+    this.intervalId = setInterval(() => {
+      const now = new Date().getTime();
+      const distance = countDownDate - now;
+
+      if (distance < 0) {
+        clearInterval(this.intervalId);
+        timerElement.innerHTML = "Награды уже в пути!";
+        preloader.style.display = "none";
+        return;
+      }
+
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor(
+        (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+      );
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+      let displayString = "";
+      if (days > 0) displayString += days + "д ";
+      if (hours > 0 || days > 0) displayString += hours + "ч ";
+      if (minutes > 0 || hours > 0 || days > 0) displayString += minutes + "м ";
+      displayString += seconds + "с";
+
+      timerElement.innerHTML = displayString;
+      if (window.getComputedStyle(preloader).display === "flex")
+        preloader.style.display = "none";
+    }, 1000);
+  }
+
+  displayTopUsers({ currentUserInfo, userRatingList }) {
+    console.log(currentUserInfo);
+    let placeClass;
+    if (currentUserInfo.place === 1) {
+      placeClass = "first";
+    } else if (currentUserInfo.place === 2) {
+      placeClass = "second";
+    } else if (currentUserInfo.place === 3) {
+      placeClass = "third";
+    } else {
+      placeClass = "";
+    }
+
+    const listFriends = this.topUsersContainer;
+    const listUser = document.createElement("div");
+    listUser.classList.add("list-user");
+    listUser.innerHTML = `
   
               <div class="friends-list-block-logo-info">
                 <div class="friends-list-user-logo" style="background-image: url('${avatarUrl}')"></div>
                 <div class="friends-list-user-info">
                   <div class="friends-list-user-info-name">${username}</div>
-                  <div class="friends-list-user-info-balance">
-                    <div class="friends-list-user-info-balance-text">${topUsers.userBalance}</div>
-                    <div class="friends-list-user-info-balance-logo"></div>
+                  <div class="friends-list-user-info-data">
+                    <div class="friends-list-user-info-balance">
+                      <div class="friends-list-user-info-balance-text">${currentUserInfo.userEventScore}</div>
+                      <div class="friends-list-user-info-balance-logo"></div>
+                    </div>
+                    <div class="friends-list-user-info-balance">
+                      <div class="friends-list-user-info-balance-text">${currentUserInfo.referralsNumber}</div>
+                        <svg class="friends-list-user-info-balance-icon" width="16" height="16" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <g clip-path="url(#clip0_51_711)">
+                            <path d="M19.9584 24.5V22.1667C19.9584 20.929 19.4667 19.742 18.5916 18.8668C17.7164 17.9917 16.5294 17.5 15.2917 17.5H5.95841C4.72074 17.5 3.53375 17.9917 2.65858 18.8668C1.78341 19.742 1.29175 20.929 1.29175 22.1667V24.5"
+                             stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"></path>
+                            <path d="M10.6249 12.8333C13.2022 12.8333 15.2916 10.744 15.2916 8.16667C15.2916 5.58934 13.2022 3.5 10.6249 3.5C8.04759 3.5 5.95825 5.58934 5.95825 8.16667C5.95825 10.744 8.04759 12.8333 10.6249 12.8333Z"
+                             stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"></path>
+                            <path d="M26.9583 24.4999V22.1666C26.9575 21.1326 26.6133 20.1282 25.9798 19.311C25.3464 18.4938 24.4594 17.9101 23.4583 17.6516" 
+                            stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"></path>
+                            <path d="M18.7917 3.65161C19.7956 3.90863 20.6853 4.49243 21.3207 5.31097C21.956 6.12952 22.3009 7.13625 22.3009 8.17244C22.3009 9.20864 21.956 10.2154 21.3207 11.0339C20.6853 11.8525 19.7956 12.4363 18.7917 12.6933" 
+                            stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"></path>
+                          </g>
+                        </svg>
+                    </div>
                   </div>
                 </div>
               </div>
               <div class="list-user-rating">
                 <div class="">Рейтинг</div>
-                <div class="list-user-rating-place ${placeClass}">${topUsers.userPlace}</div>
+                <div class="list-user-rating-place ${placeClass}">${currentUserInfo.place}</div>
               </div>
             
           
           `;
-  listFriends.append(listUser);
+    listFriends.append(listUser);
 
-  topUsers.userRatingList.reverse().forEach((item) => {
-    let placeClass;
-    if (item.place === 1) {
-      item.rewardAmount += "$";
-      placeClass = "first";
-    } else if (item.place === 2) {
-      item.rewardAmount += "$";
-      placeClass = "second";
-    } else if (item.place === 3) {
-      item.rewardAmount += "$";
-      placeClass = "third";
-    } else {
-      item.rewardAmount = "";
-      placeClass = "";
-    }
-    const list = document.createElement("div");
-    list.classList.add("friends-list-user");
+    userRatingList.forEach((item) => {
+      let placeClass;
+      if (item.place === 1) {
+        item.rewardAmount += "$";
+        placeClass = "first";
+      } else if (item.place === 2) {
+        item.rewardAmount += "$";
+        placeClass = "second";
+      } else if (item.place === 3) {
+        item.rewardAmount += "$";
+        placeClass = "third";
+      } else {
+        item.rewardAmount = "";
+        placeClass = "";
+      }
+      const list = document.createElement("div");
+      list.classList.add("friends-list-user");
 
-    if (item.avatarUrl !== null) {
       list.innerHTML = `
             <div class="list-user-place ${placeClass}" >${item.place}</div>
             <div class="friends-list-block-logo-info">
-              <div class="friends-list-user-logo" style="background-image: url('${item.avatarUrl}')"></div>
+              <div class="friends-list-user-logo"></div>
               <div class="friends-list-user-info">
-                <div class="friends-list-user-info-name">${item.username}</div>
-                <div class="friends-list-user-info-balance">
-                  <div class="friends-list-user-info-balance-text">${item.userBalance}</div>
-                  <div class="friends-list-user-info-balance-logo"></div>
-                </div>
+                <div class="friends-list-user-info-name">${DOMPurify.sanitize(
+                  item.username
+                )}</div>
+                  <div class="friends-list-user-info-data">
+                    <div class="friends-list-user-info-balance">
+                      <div class="friends-list-user-info-balance-text">${
+                        item.userEventScore
+                      }</div>
+                      <div class="friends-list-user-info-balance-logo"></div>
+                    </div>
+                    <div class="friends-list-user-info-balance">
+                      <div class="friends-list-user-info-balance-text">${
+                        item.referralsNumber
+                      }</div>
+                        <svg class="friends-list-user-info-balance-icon" width="16" height="16" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <g clip-path="url(#clip0_51_711)">
+                            <path d="M19.9584 24.5V22.1667C19.9584 20.929 19.4667 19.742 18.5916 18.8668C17.7164 17.9917 16.5294 17.5 15.2917 17.5H5.95841C4.72074 17.5 3.53375 17.9917 2.65858 18.8668C1.78341 19.742 1.29175 20.929 1.29175 22.1667V24.5"
+                             stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"></path>
+                            <path d="M10.6249 12.8333C13.2022 12.8333 15.2916 10.744 15.2916 8.16667C15.2916 5.58934 13.2022 3.5 10.6249 3.5C8.04759 3.5 5.95825 5.58934 5.95825 8.16667C5.95825 10.744 8.04759 12.8333 10.6249 12.8333Z"
+                             stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"></path>
+                            <path d="M26.9583 24.4999V22.1666C26.9575 21.1326 26.6133 20.1282 25.9798 19.311C25.3464 18.4938 24.4594 17.9101 23.4583 17.6516" 
+                            stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"></path>
+                            <path d="M18.7917 3.65161C19.7956 3.90863 20.6853 4.49243 21.3207 5.31097C21.956 6.12952 22.3009 7.13625 22.3009 8.17244C22.3009 9.20864 21.956 10.2154 21.3207 11.0339C20.6853 11.8525 19.7956 12.4363 18.7917 12.6933" 
+                            stroke="currentColor" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round"></path>
+                          </g>
+                        </svg>
+                    </div>
+                  </div>
               </div>
             </div>
             <div class="list-user-reward">${item.rewardAmount}</div>
    `;
-    } else {
-      list.innerHTML = `
-            <div class="list-user-place ${placeClass}" >${item.place}</div>
-            <div class="friends-list-block-logo-info">
-              <div class="friends-list-user-logo" style="background: #e04646;">${item.username[0].toUpperCase()}</div>
-              <div class="friends-list-user-info">
-                <div class="friends-list-user-info-name">${item.username}</div>
-                <div class="friends-list-user-info-balance">
-                  <div class="friends-list-user-info-balance-text">${
-                    item.userBalance
-                  }</div>
-                  <div class="friends-list-user-info-balance-logo"></div>
-                </div>
-              </div>
-            </div>
-            <div class="list-user-reward">${item.rewardAmount}</div>
-   `;
-    }
-    listFriends.append(list);
-  });
-}
+      listFriends.append(list);
 
-function displayFriendsNull() {
-  const main = document.getElementById("friends");
-  main.innerHTML = "";
+      const logoDiv = list.querySelector(".friends-list-user-logo");
+      if (item.avatarUrl) {
+        logoDiv.style.backgroundImage = `url('${item.avatarUrl}')`;
+        logoDiv.style.backgroundColor = "";
+      } else {
+        logoDiv.innerText = item.username[0].toUpperCase();
+        logoDiv.style.backgroundImage = "none";
+        logoDiv.style.backgroundColor = "#e04646";
+      }
+    });
+  }
 
-  main.innerHTML = `
-  <div class="friends-block-null">
+  displayFriendsNull() {
+    this.referralsContainer.innerHTML = "";
+
+    this.referralsContainer.innerHTML = `
+  <div class="block friends-block-null">
         <img
           src="gif/octopus(miidle)_compressed.gif"
           style="height: 140px; width: 140px;"
@@ -180,12 +225,11 @@ function displayFriendsNull() {
           CUNA
         </div>
       </div>
-<div class="friends-block-null-button-container">
-      <div class="friends-block-null-button-invite" id="invite">
-        <div class="friends-block-null-button-text">Пригласить друга</div>
+<div class="friends-block-button-container">
+      <div class="friends-block-button" id="invite">
+        <div class="friends-block-button-text">Пригласить друга</div>
         <svg
-          class="friends-block-null-button-icon"
-          style="margin-left: 1px"
+          class="friends-block-button-icon"
           width="26"
           height="26"
           viewBox="0 0 26 26"
@@ -200,12 +244,11 @@ function displayFriendsNull() {
           />
         </svg>
       </div>
-      <div class="friends-block-null-button-link" id="copy">
-        <div class="friends-block-null-button-text">Скопировать ссылку</div>
+      <div class="friends-block-button" id="copy">
+        <div class="friends-block-button-text">Скопировать ссылку</div>
         <svg
-          class="friends-block-null-button-icon"
+          class="friends-block-button-icon"
           id="svg1"
-          style="margin-left: 5px"
           width="26"
           height="26"
           viewBox="0 0 26 26"
@@ -220,9 +263,9 @@ function displayFriendsNull() {
           />
         </svg>
         <svg
-          class="friends-block-null-button-icon"
+          class="friends-block-button-icon"
           id="svg2"
-          style="display: none; margin-left: 5px"
+          style="display: none;"
           width="26"
           height="26"
           viewBox="0 0 26 26"
@@ -238,15 +281,14 @@ function displayFriendsNull() {
         </div>
       </div>
   `;
-  document.getElementById("preloader").style.display = "none";
-  buttons();
-}
+    this.buttons.bindDynamicButtons(this.userId);
+    document.getElementById("preloader").style.display = "none";
+  }
 
-function displayFriendsNotNull(referrals) {
-  const main = document.getElementById("friends");
-  main.innerHTML = "";
-  main.innerHTML = `
-    <div class="friends-block-not-null">
+  displayFriendsNotNull(referrals) {
+    this.referralsContainer.innerHTML = "";
+    this.referralsContainer.innerHTML = `
+    <div class="block friends-block-not-null">
         <div class="friends-block-not-null-text">Приглашенные друзья
           <div class="friends-block-not-null-amount">${referrals.length}</div>
         </div>
@@ -257,12 +299,11 @@ function displayFriendsNotNull(referrals) {
         <div class="friends-block-not-null-list" id="list">
         </div>
       </div>
-      <div class="friends-buttons">
-        <div class="friends-block-not-null-button-invite" id="invite">
-          <div class="friends-block-not-null-button-text">Пригласить друга</div>
+      <div class="friends-block-button-container not-null">
+        <div class="friends-block-button" id="invite">
+          <div class="friends-block-button-text">Пригласить друга</div>
           <svg
-            class="friends-block-null-button-icon"
-            style="margin-left: 1px"
+            class="friends-block-button-icon"
             width="26"
             height="26"
             viewBox="0 0 26 26"
@@ -277,7 +318,7 @@ function displayFriendsNotNull(referrals) {
             />
           </svg>
         </div>
-        <div class="friends-block-not-null-button-link" id="copy">
+        <div class="friends-block-button link-not-null" id="copy">
           <svg
             style="color: var(--theme-button-icon-text-color)"
             id="svg1"
@@ -313,32 +354,18 @@ function displayFriendsNotNull(referrals) {
       </div>
   `;
 
-  const listFriends = document.getElementById("list");
-  referrals.forEach((item) => {
-    const list = document.createElement("div");
-    list.classList.add("friends-list-user");
+    const listFriends = document.getElementById("list");
+    referrals.forEach((item) => {
+      const list = document.createElement("div");
+      list.classList.add("friends-list-user");
 
-    if (item.avatarUrl !== null) {
       list.innerHTML = `
-      
       <div class="friends-list-block-logo-info">
-              <div class="friends-list-user-logo" style="background-image: url('${item.avatarUrl}')"></div>
+              <div class="friends-list-user-logo"></div>
               <div class="friends-list-user-info">
-                <div class="friends-list-user-info-name">${item.name}</div>
-                <div class="friends-list-user-info-balance">
-                  <div class="friends-list-user-info-balance-text">${item.balance}</div>
-                  <div class="friends-list-user-info-balance-logo"></div>
-                </div>
-                </div>
-              </div>
-     `;
-    } else {
-      list.innerHTML = `
-      
-      <div class="friends-list-block-logo-info">
-              <div class="friends-list-user-logo" style="background: #e04646;">${item.name[0].toUpperCase()}</div>
-              <div class="friends-list-user-info">
-                <div class="friends-list-user-info-name">${item.name}</div>
+                <div class="friends-list-user-info-name">${DOMPurify.sanitize(
+                  item.name
+                )}</div>
                 <div class="friends-list-user-info-balance">
                   <div class="friends-list-user-info-balance-text">${
                     item.balance
@@ -348,75 +375,115 @@ function displayFriendsNotNull(referrals) {
                 </div>
               </div>
      `;
-    }
-    listFriends.append(list);
-  });
-  document.getElementById("preloader").style.display = "none";
-  buttons();
-}
+      listFriends.append(list);
 
-function buttons() {
-  const buttonInvite = document.getElementById("invite");
+      const logoDiv = list.querySelector(".friends-list-user-logo");
+      if (item.avatarUrl) {
+        logoDiv.style.backgroundImage = `url('${item.avatarUrl}')`;
+        logoDiv.style.backgroundColor = "";
+      } else {
+        logoDiv.innerText = item.name[0].toUpperCase();
+        logoDiv.style.backgroundImage = "none";
+        logoDiv.style.backgroundColor = "#e04646";
+      }
+    });
+    this.buttons.bindDynamicButtons(this.userId);
 
-  buttonInvite.addEventListener("click", function () {
-    let a = `https://t.me/cunaedu_bot/CunaEdu?startapp=${userId}`,
-      s = encodeURI(a),
-      o = encodeURI("Узнавай новое вместе со мной (@cryptuna)");
-    window.location.href = `https://t.me/share/url?url=${s}&text=${o}`;
-  });
-
-  document.getElementById("copy").addEventListener("click", function () {
-    let link = `https://t.me/cunaedu_bot/CunaEdu?startapp=${userId}`;
-    navigator.clipboard.writeText(link);
-
-    var svg1 = document.getElementById("svg1");
-    var svg2 = document.getElementById("svg2");
-
-    if (svg1.style.display !== "none") {
-      svg1.style.animation = "fadeOut 0.2s forwards";
-      setTimeout(function () {
-        svg1.style.display = "none";
-        svg2.style.display = "block";
-        svg2.style.animation = "fadeIn 0.2s forwards";
-
-        setTimeout(function () {
-          svg2.style.animation = "fadeOut 0.2s forwards";
-          setTimeout(function () {
-            svg2.style.display = "none";
-            svg1.style.display = "block";
-            svg1.style.animation = "fadeIn 0.2s forwards";
-          }, 200);
-        }, 2000);
-      }, 200);
-    }
-    tg.HapticFeedback.impactOccurred("success");
-  });
-}
-
-const modal = document.getElementById("modal");
-const popupBtn = document.getElementById("pop");
-const popupBtnSvg = document.getElementById("popu");
-const modalButtonOk = document.getElementById("okButton");
-
-const showModal = () => {
-  modal.style.display = "block";
-};
-
-popupBtn.addEventListener("click", showModal);
-
-popupBtnSvg.addEventListener("click", (e) => {
-  e.stopPropagation();
-  showModal();
-});
-
-document.addEventListener("click", (event) => {
-  if (event.target === modal) {
-    modal.style.display = "none";
+    document.getElementById("preloader").style.display = "none";
   }
-});
+}
 
-modalButtonOk.addEventListener("click", () => {
-  modal.style.display = "none";
-});
+class FriendsButtons {
+  constructor() {
+    this.modal = document.getElementById("modal");
+    this.popupBtn = document.getElementById("pop");
+    this.popupBtnSvg = document.getElementById("popu");
+    this.modalButtonOk = document.getElementById("okButton");
 
-localStorage.removeItem("courseData");
+    this._bindStaticEvents();
+  }
+
+  _bindStaticEvents() {
+    this.popupBtn.addEventListener("click", (event) => {
+      event.stopPropagation();
+      this.showModal(true);
+    });
+
+    this.popupBtnSvg.addEventListener("click", (event) => {
+      event.stopPropagation();
+      this.showModal(true);
+    });
+
+    document.addEventListener("click", (event) => {
+      if (event.target === this.modal) {
+        this.showModal(false);
+      }
+    });
+
+    this.modalButtonOk.addEventListener("click", () => {
+      this.showModal(false);
+    });
+  }
+
+  bindDynamicButtons(userId) {
+    const buttonInvite = document.getElementById("invite");
+    const buttonCopy = document.getElementById("copy");
+
+    if (buttonInvite) {
+      buttonInvite.addEventListener("click", () => {
+        const link = `https://t.me/cunaedu_bot/CunaEdu?startapp=${userId}`;
+        const text = encodeURIComponent(
+          "Узнавай новое вместе со мной (@cryptuna)"
+        );
+        const url = encodeURIComponent(link);
+        window.location.href = `https://t.me/share/url?url=${url}&text=${text}`;
+      });
+    }
+
+    if (buttonCopy) {
+      buttonCopy.addEventListener("click", () => {
+        const link = `https://t.me/cunaedu_bot/CunaEdu?startapp=${userId}`;
+        navigator.clipboard.writeText(link);
+
+        const svg1 = document.getElementById("svg1");
+        const svg2 = document.getElementById("svg2");
+
+        if (svg1.style.display !== "none") {
+          svg1.style.animation = "fade-out 0.2s forwards";
+          setTimeout(() => {
+            svg1.style.display = "none";
+            svg2.style.display = "block";
+            svg2.style.animation = "fade-in 0.2s forwards";
+
+            setTimeout(() => {
+              svg2.style.animation = "fade-out 0.2s forwards";
+              setTimeout(() => {
+                svg2.style.display = "none";
+                svg1.style.display = "block";
+                svg1.style.animation = "fade-in 0.2s forwards";
+              }, 200);
+            }, 2000);
+          }, 200);
+        }
+
+        if (window.Telegram?.WebApp?.HapticFeedback) {
+          window.Telegram.WebApp.HapticFeedback.impactOccurred("success");
+        }
+      });
+    }
+  }
+
+  showModal(show) {
+    this.modal.style.display = show ? "block" : "none";
+  }
+}
+
+const tg = window.Telegram.WebApp;
+const avatarUrl = tg.initDataUnsafe.user.photo_url;
+const userId = tg.initDataUnsafe.user.id;
+const rawUsername = tg.initDataUnsafe.user.username;
+const username = rawUsername ? DOMPurify.sanitize(rawUsername) : "User";
+
+const friends = new FriendsController(userId);
+friends.getReferrals();
+friends.getTopUsers();

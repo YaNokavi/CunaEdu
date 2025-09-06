@@ -3,14 +3,14 @@ const tg = window.Telegram.WebApp;
 const platform = tg.platform;
 const version = Number(tg.version);
 
-try {
-  tg.initDataUnsafe.user.id;
-  if (platform == "web") {
-    window.location.href = "webversion.html";
-  }
-} catch {
-  window.location.href = "nontg.html";
-}
+// try {
+//   tg.initDataUnsafe.user.id;
+//   if (platform == "web") {
+//     window.location.href = "webversion.html";
+//   }
+// } catch {
+//   window.location.href = "nontg.html";
+// }
 
 function applyTheme(theme) {
   if (theme === "light") {
@@ -86,6 +86,13 @@ function applyTheme(theme) {
       "--theme-step-text-color",
       `#4f4e4e`
     );
+    document.documentElement.style.setProperty(
+      "--theme-loader-wallet-color",
+      `
+    rgba(205, 205, 205) 25%,
+    rgba(225, 225, 225) 50%,
+    rgba(205, 205, 205) 75%`
+    );
   } else {
     tg.setHeaderColor("#191919");
     document.documentElement.style.setProperty("--theme-bg-color", `#131313`);
@@ -159,6 +166,12 @@ function applyTheme(theme) {
       "--theme-step-text-color",
       `#b0b0b0`
     );
+    document.documentElement.style.setProperty(
+      "--theme-loader-wallet-color",
+      `rgba(100, 100, 100, 1) 25%,
+    rgba(125, 125, 125, 1) 50%,
+    rgba(100, 100, 100, 1) 75%`
+    );
   }
 }
 
@@ -176,19 +189,23 @@ tg.onEvent("themeChanged", function () {
 
   if (theme !== savedTheme) {
     applyTheme(theme);
+
     localStorage.setItem("theme", theme);
   }
 });
 
 if ((platform == "ios" || platform == "android") && version > 6) {
   tg.requestFullscreen();
-  document.documentElement.style.setProperty("--InsetTop", `${60}px`);
-  document.documentElement.style.setProperty("--tabBarHeight", `${70}px`);
-  document.documentElement.style.setProperty("--tabBarPadding", `${12}px`);
-  document.documentElement.style.setProperty("--InsetTopNavigation", `${90}px`);
+  document.documentElement.style.setProperty("--inset-top", `${60}px`);
+  document.documentElement.style.setProperty("--tab-bar-height", `${70}px`);
+  document.documentElement.style.setProperty("--tab-bar-padding", `${12}px`);
+  document.documentElement.style.setProperty(
+    "--inset-top-navigation",
+    `${90}px`
+  );
 } else {
-  document.documentElement.style.setProperty("--tabBarHeight", `${55}px`);
-  document.documentElement.style.setProperty("--tabBarPadding", `${9}px`);
+  document.documentElement.style.setProperty("--tab-bar-height", `${55}px`);
+  document.documentElement.style.setProperty("--tab-bar-padding", `${9}px`);
 }
 tg.lockOrientation();
 tg.expand();
@@ -218,16 +235,16 @@ if (
 let link = document.referrer.split("/").pop();
 link = link.split("?")[0];
 if (!link) link = "favorite.html";
-let idCourse;
+let courseId;
 const queryString = window.location.search;
 const params = new URLSearchParams(queryString);
 
 if (currentUrl.endsWith("syllabus.html")) {
-  idCourse = Number(params.get("id"));
+  courseId = Number(params.get("courseId"));
 } else if (currentUrl.endsWith("step.html")) {
-  idCourse = Number(params.get("courseId"));
+  courseId = Number(params.get("courseId"));
 } else if (currentUrl.endsWith("rating.html")) {
-  idCourse = Number(params.get("idCourse"));
+  courseId = Number(params.get("courseId"));
 }
 
 if (
@@ -244,16 +261,15 @@ if (
   currentUrl.endsWith("syllabus.html") ||
   currentUrl.endsWith("rating.html")
 ) {
-  link = `courses.html?v=1.0.6&id=${idCourse}`;
+  link = `courses.html?v=1.0.7&courseId=${courseId}`;
 } else if (currentUrl.endsWith("step.html")) {
-  link = `syllabus.html?v=1.0.6&id=${idCourse}`;
+  link = `syllabus.html?v=1.0.7&courseId=${courseId}`;
 }
 
 tg.onEvent("backButtonClicked", function () {
   tg.HapticFeedback.impactOccurred("medium");
   if (link) {
     window.location.href = link;
-  } else {
   }
 });
 
@@ -274,3 +290,56 @@ function swipeAllow() {
     }
   });
 }
+
+// let userOnline = true;
+// let tabBar = null;
+// window.addEventListener("DOMContentLoaded", () => {
+//   tabBar = document.querySelectorAll(".tab-item");
+// });
+
+// const listeners = [];
+
+// function setUserOnline(status) {
+//   userOnline = status;
+//   // Вызываем все подписанные обработчики
+//   listeners.forEach((fn) => fn(userOnline));
+// }
+
+// function onUserOnlineChange(fn) {
+//   listeners.push(fn);
+// }
+
+// // Навешиваем слушатели на события браузера
+// window.addEventListener("online", () => {
+//   console.log("Пользователь онлайн");
+//   setUserOnline(true);
+// });
+
+// window.addEventListener("offline", () => {
+//   console.log("Пользователь офлайн");
+//   alert("Какие-то неполадки. Проверьте подключение к интернету");
+//   setUserOnline(false);
+// });
+
+// // Подписываемся на изменения статуса
+// onUserOnlineChange((status) => {
+//   console.log("Статус сети изменился:", status);
+//   if (status === true) {
+//     document.getElementById("preloader").style.display = "none";
+//     disableTab();
+//   } else {
+//     document.getElementById("preloader").style.display = "flex";
+
+//     tabBar.forEach((item) => {
+//       item.style.pointerEvents = "none";
+//     });
+//   }
+// });
+
+// function disableTab() {
+//   tabBar.forEach((item) => {
+//     item.style.pointerEvents = "auto";
+//   });
+//   const tab = document.getElementById("active");
+//   tab.style.pointerEvents = "none";
+// }

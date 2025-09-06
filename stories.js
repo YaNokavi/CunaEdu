@@ -1,8 +1,6 @@
 const page = document.getElementById("page");
-
 const htmlForStory = `
       <div class="status-bar" id="status-bar">
-        
       </div>
       <div class="main-content">
         <div class="text-content">
@@ -95,8 +93,6 @@ function updateStatusBar(activeIndex) {
 }
 
 function displayStory(index) {
-  console.log(index);
-
   const story = storyList[storyKeys[index]];
   page.style.background = story.pageColor;
   textHeader.innerText = story.header;
@@ -121,7 +117,7 @@ window.addEventListener("storiesReady", function () {
     }
   }
 
-  Object.keys(storyList).forEach((story, index) => {
+  Object.keys(storyList).forEach((index) => {
     if (index === 0) {
       statusBar.innerHTML += `<div class="status-bar-element active"></div>`;
     } else {
@@ -136,12 +132,6 @@ function goNext() {
     currentIndex++;
     displayStory(currentIndex);
     nextButton.disabled = false; // если кнопка была заблокирована
-  } else {
-    // Можно зациклить:
-    // currentIndex = 0;
-    // displayStory(currentIndex);
-    // Или заблокировать кнопку:
-    // nextButton.disabled = true;
   }
 }
 
@@ -151,10 +141,6 @@ function goPrev() {
     displayStory(currentIndex);
     nextButton.disabled = false;
   }
-  // else {
-  //   currentIndex = storyKeys.length - 1;
-  //   displayStory(currentIndex);
-  // }
 }
 
 nextButton.addEventListener("click", (event) => {
