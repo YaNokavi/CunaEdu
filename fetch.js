@@ -4,7 +4,7 @@ async function fetchData(
   headers = {},
   body = null,
   expectResponse = true,
-  maxAttempts = 3
+  maxAttempts = 3,
 ) {
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {

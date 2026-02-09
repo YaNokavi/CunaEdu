@@ -318,6 +318,7 @@ class WalletController {
   }
 
   async connectWallet(address) {
+    //TODO Обрабтка на отсутствие возможности подключиться
     const body = {
       walletAddress: address,
     };
@@ -328,7 +329,9 @@ class WalletController {
         {
           "X-User-Id": this.userId,
         },
-        body
+        body,
+        true,
+        1
       );
 
       if (walletInfo) {
@@ -462,23 +465,22 @@ class WalletButtons {
       buttonConnectWallet.innerHTML = "";
       buttonConnectWallet.classList.add("load-task-animation");
       buttonConnectWallet.classList.add("load-task");
-      let walletInfo = null;
-      try {
-        const walletInfoTon = await tonConnectUI.connectWallet();
-        walletInfo = await this.walletController.connectWallet(
-          walletInfoTon.account.address
-        );
-      } catch {
+
+      const walletInfoTon = await tonConnectUI.connectWallet();
+      const walletInfo = await this.walletController.connectWallet(
+        walletInfoTon.account.address
+      );
+
+      if (walletInfo && walletInfo !== 500) {
+        this.walletUI.displayBaseWalletInfo(walletInfo.address);
+        this.walletUI.displayDetailedWalletInfo(walletInfo);
+        hasWalletInfo = true;
         buttonConnectWallet.innerHTML = `<img src="icons/ton.png" />
             <span id="wallet-address">Подключить кошелек</span>`;
         buttonConnectWallet.classList.remove("load-task-animation");
         buttonConnectWallet.classList.remove("load-task");
-      }
-
-      if (walletInfo) {
-        this.walletUI.displayBaseWalletInfo(walletInfo.address);
-        this.walletUI.displayDetailedWalletInfo(walletInfo);
-        hasWalletInfo = true;
+      } else {
+        //TODO увед что не удалось подключить
         buttonConnectWallet.innerHTML = `<img src="icons/ton.png" />
             <span id="wallet-address">Подключить кошелек</span>`;
         buttonConnectWallet.classList.remove("load-task-animation");
@@ -566,9 +568,9 @@ const usernameProfile = document.querySelector(".profile-nickname");
 
 const tg = window.Telegram.WebApp;
 
-const avatarUrl = tg.initDataUnsafe.user.photo_url;
-const userId = tg.initDataUnsafe.user.id;
-const rawUsername = tg.initDataUnsafe.user.username;
+const avatarUrl = tg?.initDataUnsafe?.user?.photo_url || "";
+const userId = tg?.initDataUnsafe?.user?.id || 2;
+const rawUsername = tg?.initDataUnsafe?.user?.username || "eee";
 const username = rawUsername ? DOMPurify.sanitize(rawUsername) : "User";
 
 userIdProfile.innerText += userId;
