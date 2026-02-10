@@ -1,4 +1,5 @@
 import fetchData from "./fetch.js";
+import FingerprintJS from "https://openfpcdn.io/fingerprintjs/v4";
 
 class FavoriteController {
   constructor(userId, tabManager, modalManager) {
