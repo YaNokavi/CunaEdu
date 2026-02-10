@@ -5,7 +5,10 @@ window.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-localStorage.clear();
+//TODO Подумать
+// localStorage.clear();
+localStorage.removeItem("referallId");
+localStorage.removeItem("flagFirstJoin");
 
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);

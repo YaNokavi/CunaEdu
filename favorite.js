@@ -9,6 +9,26 @@ class FavoriteController {
     this.favoriteUI = new FavoriteUI("favorite-courses");
   }
 
+  async getDeviceTag() {
+    let deviceFingerprint = "unknown";
+    try {
+      const fp = await FingerprintJS.load();
+      const result = await fp.get();
+      deviceFingerprint = result.visitorId;
+      console.log("Browser Fingerprint:", deviceFingerprint);
+    } catch (e) {
+      console.error("Fingerprint error:", e);
+      deviceFingerprint = localStorage.getItem("device_unique_tag");
+
+      if (!deviceFingerprint) {
+        deviceFingerprint = "DEV-" + Math.random().toString(36).substr(2, 9);
+        localStorage.setItem("device_unique_tag", deviceFingerprint);
+      }
+    }
+
+    return deviceFingerprint;
+  }
+
   async getUserIP() {
     try {
       const response = await fetch("https://api.ipify.org?format=json");
@@ -36,12 +56,19 @@ class FavoriteController {
       referrerId: referallId,
     };
     try {
-      const userIp = await this.getUserIP();
+      const [userIp, deviceData] = await Promise.all([
+        this.getUserIP(),
+        this.getDeviceTag(),
+      ]);
 
       const rewards = await fetchData(
         `user/login-and-reward`,
         "POST",
-        { "X-User-Id": this.userId, "X-User-Ip": userIp },
+        {
+          "X-User-Id": this.userId,
+          "X-User-Ip": userIp,
+          "X-User-Device-Id": deviceData,
+        },
         body,
       );
 
