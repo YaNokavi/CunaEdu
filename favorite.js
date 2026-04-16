@@ -812,10 +812,17 @@ class ModalManager {
   }
 }
 
+// const tg = window.Telegram.WebApp;
+// const avatarUrl = tg.initDataUnsafe.user.photo_url;
+// const userId = tg.initDataUnsafe.user.id;
+// const rawUsername = tg.initDataUnsafe.user.username;
+// const username = rawUsername ? DOMPurify.sanitize(rawUsername) : "User";
+
 const tg = window.Telegram.WebApp;
-const avatarUrl = tg.initDataUnsafe.user.photo_url;
-const userId = tg.initDataUnsafe.user.id;
-const rawUsername = tg.initDataUnsafe.user.username;
+const avatarUrl =
+  tg.initDataUnsafe?.user?.photo_url ?? "tg.initDataUnsafe.user.photo_url";
+const userId = tg.initDataUnsafe?.user?.id ?? 1;
+const rawUsername = tg.initDataUnsafe?.user?.username;
 const username = rawUsername ? DOMPurify.sanitize(rawUsername) : "User";
 
 const flagFirstJoin = JSON.parse(localStorage.getItem("flagFirstJoin"));
