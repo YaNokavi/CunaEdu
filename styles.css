@@ -1,5 +1,6 @@
 :root {
-  --inset-top: 0px;
+  /* --inset-top: 0px; */
+  --inset-top: var(--tg-safe-area-inset-top, 0px);
   --inset-top-navigation: 0px;
   --tab-bar-height: 55px;
   --tab-bar-padding: 9px;
