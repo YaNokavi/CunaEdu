@@ -1,20 +1,8 @@
 :root {
-  /* --inset-top: 0px;
+  --inset-top: 0px;
   --inset-top-navigation: 0px;
   --tab-bar-height: 55px;
-  --tab-bar-padding: 9px; */
-  --inset-top: var(--tg-safe-area-inset-top, 0px);
-  --inset-bottom: var(--tg-safe-area-inset-bottom, 0px);
-
-  /* Отступ для навигации с учетом безопасной зоны и отступа шапки */
-  --inset-top-navigation: calc(
-    var(--tg-content-safe-area-inset-top, 0px) + 30px
-  );
-
-  /* Нижний таб-бар теперь должен учитывать системную полоску навигации снизу (Home Indicator) */
-  --tab-bar-height: calc(55px + var(--tg-safe-area-inset-bottom, 0px));
   --tab-bar-padding: 9px;
-
   --theme-bg-color: #131313;
   --theme-bg-modals-color: rgb(255 255 255 / 40%);
   --theme-bg-hint-color: rgb(203 202 198 / 10%);
@@ -44,9 +32,7 @@ body {
   display: flex;
   flex-direction: column;
   margin: 0;
-  /* height: 100dvh; */
-  height: 100%;
-  min-height: var(--tg-viewport-stable-height, 100dvh);
+  height: 100dvh;
   align-items: center;
   justify-content: center;
   overflow: hidden;
@@ -946,15 +932,9 @@ main {
 .tab-bar {
   display: flex;
   position: fixed;
-
   height: var(--tab-bar-height);
-  padding-top: var(--tab-bar-padding);
-
-  padding-bottom: var(--tg-safe-area-inset-bottom, 0px);
-  box-sizing: border-box;
-
   flex-direction: row;
-
+  padding-top: var(--tab-bar-padding);
   background-color: var(--theme-header-tab-color);
   align-items: flex-start;
   justify-content: space-between;

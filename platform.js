@@ -195,17 +195,17 @@ tg.onEvent("themeChanged", function () {
 });
 
 if ((platform === "ios" || platform === "android") && version > 6) {
-  tg.requestFullscreen();
+  // tg.requestFullscreen();
   // document.documentElement.style.setProperty("--inset-top", `${60}px`);
-  // document.documentElement.style.setProperty("--tab-bar-height", `${70}px`);
-  // document.documentElement.style.setProperty("--tab-bar-padding", `${12}px`);
-  // document.documentElement.style.setProperty(
-  //   "--inset-top-navigation",
-  //   `${90}px`,
-  // );
+  document.documentElement.style.setProperty("--tab-bar-height", `${70}px`);
+  document.documentElement.style.setProperty("--tab-bar-padding", `${12}px`);
+  document.documentElement.style.setProperty(
+    "--inset-top-navigation",
+    `${90}px`,
+  );
 } else {
-  // document.documentElement.style.setProperty("--tab-bar-height", `${55}px`);
-  // document.documentElement.style.setProperty("--tab-bar-padding", `${9}px`);
+  document.documentElement.style.setProperty("--tab-bar-height", `${55}px`);
+  document.documentElement.style.setProperty("--tab-bar-padding", `${9}px`);
 }
 tg.lockOrientation();
 tg.expand();
