@@ -3,14 +3,14 @@ const tg = window.Telegram.WebApp;
 const platform = tg.platform;
 const version = Number(tg.version);
 
-// try {
-//   tg.initDataUnsafe.user.id;
-//   if (platform == "web") {
-//     window.location.href = "webversion.html";
-//   }
-// } catch {
-//   window.location.href = "nontg.html";
-// }
+try {
+  tg.initDataUnsafe.user.id;
+  if (platform == "web") {
+    window.location.href = "webversion.html";
+  }
+} catch {
+  window.location.href = "nontg.html";
+}
 
 function applyTheme(theme) {
   if (theme === "light") {
@@ -194,18 +194,18 @@ tg.onEvent("themeChanged", function () {
   }
 });
 
-if ((platform == "ios" || platform == "android") && version > 6) {
+if ((platform === "ios" || platform === "android") && version > 6) {
   tg.requestFullscreen();
-  document.documentElement.style.setProperty("--inset-top", `${60}px`);
-  document.documentElement.style.setProperty("--tab-bar-height", `${70}px`);
-  document.documentElement.style.setProperty("--tab-bar-padding", `${12}px`);
-  document.documentElement.style.setProperty(
-    "--inset-top-navigation",
-    `${90}px`,
-  );
+  // document.documentElement.style.setProperty("--inset-top", `${60}px`);
+  // document.documentElement.style.setProperty("--tab-bar-height", `${70}px`);
+  // document.documentElement.style.setProperty("--tab-bar-padding", `${12}px`);
+  // document.documentElement.style.setProperty(
+  //   "--inset-top-navigation",
+  //   `${90}px`,
+  // );
 } else {
-  document.documentElement.style.setProperty("--tab-bar-height", `${55}px`);
-  document.documentElement.style.setProperty("--tab-bar-padding", `${9}px`);
+  // document.documentElement.style.setProperty("--tab-bar-height", `${55}px`);
+  // document.documentElement.style.setProperty("--tab-bar-padding", `${9}px`);
 }
 tg.lockOrientation();
 tg.expand();

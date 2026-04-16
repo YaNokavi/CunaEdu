@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ru">
   <head>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -28,17 +28,17 @@
             return;
           }
         }
-        (k = e.createElement(t)),
+        ((k = e.createElement(t)),
           (a = e.getElementsByTagName(t)[0]),
           (k.async = 1),
           (k.src = r),
-          a.parentNode.insertBefore(k, a);
+          a.parentNode.insertBefore(k, a));
       })(
         window,
         document,
         "script",
         "https://mc.yandex.ru/metrika/tag.js",
-        "ym"
+        "ym",
       );
 
       ym(99328332, "init", {
@@ -61,7 +61,7 @@
   <body>
     <header>Ошибка</header>
 
-    <main>
+    <main style="height: 100dvh">
       <div
         class="course-block"
         style="
@@ -78,7 +78,9 @@
             display: flex;
             position: relative;
             flex-direction: column;
-            font: 600 22px/1 Inter, sans-serif;
+            font:
+              600 22px/1 Inter,
+              sans-serif;
             font-style: normal;
             line-height: 20px;
             letter-spacing: -0.43px;
