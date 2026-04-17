@@ -194,8 +194,12 @@ tg.onEvent("themeChanged", function () {
   }
 });
 
-if ((platform === "ios" || platform === "android") && version > 6) {
+if (platform === "ios" && typeof tg.requestFullscreen === "function") {
   tg.requestFullscreen();
+}
+
+if (platform === "ios" || platform === "android") {
+  if (platform === "ios" && tg.requestFullscreen) tg.requestFullscreen();
   // document.documentElement.style.setProperty("--inset-top", `${60}px`);
   document.documentElement.style.setProperty("--tab-bar-height", `${70}px`);
   document.documentElement.style.setProperty("--tab-bar-padding", `${12}px`);
