@@ -2458,10 +2458,11 @@ main::-webkit-scrollbar {
 
 .friends-block-button-container {
   display: flex;
+  width: 100%;
   flex-direction: column;
   align-items: center;
   gap: 10px;
-  margin-top: 10px;
+  /* margin-top: 10px; */
 }
 
 .friends-block-button-container.not-null {

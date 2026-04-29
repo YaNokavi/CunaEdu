@@ -5,7 +5,7 @@ function displayNotification(reward, type) {
     if (reward) {
       const notification = document.getElementById("notification");
       const notificationBalance = document.getElementById(
-        "notification-balance"
+        "notification-balance",
       );
       notificationBalance.innerText = `+${reward}`;
       const notificationLogo = document.querySelector(".notification-logo");
@@ -23,7 +23,7 @@ function displayNotification(reward, type) {
     } else {
       const notification = document.getElementById("notification");
       const notificationBalance = document.getElementById(
-        "notification-balance"
+        "notification-balance",
       );
       notificationBalance.innerText = `Задание еще не выполнено`;
       const notificationLogo = document.querySelector(".notification-logo");
@@ -59,9 +59,9 @@ function displayNotification(reward, type) {
 }
 
 class ProfileController {
-  constructor(userId, walletUI) {
+  constructor(userId /*, walletUI*/) {
     this.userId = userId;
-    this.walletUI = walletUI;
+    // this.walletUI = walletUI;
 
     this.balanceText = document.getElementById("balance");
 
@@ -80,14 +80,13 @@ class ProfileController {
 
       this.balanceText.innerText = formattedBalance;
 
-      document.getElementById(
-        "balance-cuna"
-      ).innerHTML = `${formattedBalance} CUNA`;
+      // document.getElementById("balance-cuna").innerHTML =
+      //   `${formattedBalance} CUNA`;
 
-      if (userInfo.walletAddress) {
-        walletAddress = userInfo.walletAddress;
-        this.walletUI.displayBaseWalletInfo(walletAddress);
-      }
+      // if (userInfo.walletAddress) {
+      //   walletAddress = userInfo.walletAddress;
+      //   this.walletUI.displayBaseWalletInfo(walletAddress);
+      // }
 
       if (userInfo.coursesProgress.length != 0) {
         this.profileUI.displayProgress(userInfo);
@@ -114,7 +113,7 @@ class ProfileController {
       const taskCheckInfo = await fetchData(
         `task/${task.taskId}/completed`,
         "POST",
-        { "X-User-Id": this.userId }
+        { "X-User-Id": this.userId },
       );
 
       const buttonTask = document.getElementById(`task${task.taskId}`);
@@ -154,7 +153,7 @@ class ProfileUI {
 
     this.tasksList = document.getElementById("tasks-list");
     this.coursesProgressBlock = document.getElementById(
-      "courses-progress-block"
+      "courses-progress-block",
     );
 
     this.listProgress = [];
@@ -181,7 +180,7 @@ class ProfileUI {
 
   animateProgress() {
     let progressBarElements = this.coursesProgressBlock.querySelectorAll(
-      ".course-info-bar-progress"
+      ".course-info-bar-progress",
     );
     if (document.getElementById("preloader").style.display === "none") {
       requestAnimationFrame(() => {
@@ -269,7 +268,7 @@ class ProfileUI {
       })
       .catch((url) => {
         console.error(
-          `Ошибка при загрузке одного или нескольких изображений: ${url}`
+          `Ошибка при загрузке одного или нескольких изображений: ${url}`,
         );
       });
   }
@@ -282,279 +281,279 @@ class ProfileUI {
   }
 }
 
-class WalletController {
-  constructor(userId, walletUI) {
-    this.userId = userId;
-    this.walletUI = walletUI;
+// class WalletController {
+//   constructor(userId, walletUI) {
+//     this.userId = userId;
+//     this.walletUI = walletUI;
 
-    this.walletButtons = new WalletButtons(this, walletUI);
-  }
+//     this.walletButtons = new WalletButtons(this, walletUI);
+//   }
 
-  async getWalletInfo() {
-    try {
-      const walletInfo = await fetchData(`wallet/info`, "GET", {
-        "X-User-Id": this.userId,
-      });
+//   async getWalletInfo() {
+//     try {
+//       const walletInfo = await fetchData(`wallet/info`, "GET", {
+//         "X-User-Id": this.userId,
+//       });
 
-      this.walletUI.displayDetailedWalletInfo(walletInfo);
-      hasWalletInfo = true;
-    } catch (error) {
-      console.error("Ошибка при получении данных кошелька:", error);
-    }
-  }
+//       this.walletUI.displayDetailedWalletInfo(walletInfo);
+//       hasWalletInfo = true;
+//     } catch (error) {
+//       console.error("Ошибка при получении данных кошелька:", error);
+//     }
+//   }
 
-  async disconnectWallet() {
-    const responce = await fetchData(
-      `wallet`,
-      "DELETE",
-      {
-        "X-User-Id": this.userId,
-      },
-      null,
-      false
-    );
+//   async disconnectWallet() {
+//     const responce = await fetchData(
+//       `wallet`,
+//       "DELETE",
+//       {
+//         "X-User-Id": this.userId,
+//       },
+//       null,
+//       false,
+//     );
 
-    return responce;
-  }
+//     return responce;
+//   }
 
-  async connectWallet(address) {
-    //TODO Обрабтка на отсутствие возможности подключиться
-    const body = {
-      walletAddress: address,
-    };
-    try {
-      const walletInfo = await fetchData(
-        `wallet/connect`,
-        "POST",
-        {
-          "X-User-Id": this.userId,
-        },
-        body,
-        true,
-        1
-      );
+//   async connectWallet(address) {
+//     //TODO Обрабтка на отсутствие возможности подключиться
+//     const body = {
+//       walletAddress: address,
+//     };
+//     try {
+//       const walletInfo = await fetchData(
+//         `wallet/connect`,
+//         "POST",
+//         {
+//           "X-User-Id": this.userId,
+//         },
+//         body,
+//         true,
+//         1,
+//       );
 
-      if (walletInfo) {
-        return walletInfo;
-      } else {
-        throw Error;
-      }
-    } catch (error) {
-      console.error(
-        "Ошибка получения информации о кошельке:",
-        error,
-        error.status
-      );
-      return error.status;
-    }
-  }
-}
+//       if (walletInfo) {
+//         return walletInfo;
+//       } else {
+//         throw Error;
+//       }
+//     } catch (error) {
+//       console.error(
+//         "Ошибка получения информации о кошельке:",
+//         error,
+//         error.status,
+//       );
+//       return error.status;
+//     }
+//   }
+// }
 
-class WalletUI {
-  constructor() {
-    this.walletBlock = document.getElementById("wallet-block");
-    this.walletAddressElement = document.getElementById("wallet-address");
-  }
+// class WalletUI {
+//   constructor() {
+//     this.walletBlock = document.getElementById("wallet-block");
+//     this.walletAddressElement = document.getElementById("wallet-address");
+//   }
 
-  displayBaseWalletInfo(address) {
-    this.walletBlock.classList.remove("not-connected");
-    buttonConnectWallet.style.display = "none";
-    addressBlock.style.display = "flex";
-    walletButtonMenu.style.display = "flex";
-    expandedContent.style.display = "flex";
-    const userFriendlyAddress = address;
-    this.walletAddressElement.textContent = `${userFriendlyAddress.slice(
-      0,
-      3
-    )}...${userFriendlyAddress.slice(-3)}`;
+//   displayBaseWalletInfo(address) {
+//     this.walletBlock.classList.remove("not-connected");
+//     buttonConnectWallet.style.display = "none";
+//     addressBlock.style.display = "flex";
+//     walletButtonMenu.style.display = "flex";
+//     expandedContent.style.display = "flex";
+//     const userFriendlyAddress = address;
+//     this.walletAddressElement.textContent = `${userFriendlyAddress.slice(
+//       0,
+//       3,
+//     )}...${userFriendlyAddress.slice(-3)}`;
 
-    buttonCopyAddress.addEventListener("click", function (event) {
-      event.stopPropagation();
-      addressBlock.classList.remove("active");
-      navigator.clipboard.writeText(userFriendlyAddress);
-      displayNotification(null, "COPY");
-    });
-  }
+//     buttonCopyAddress.addEventListener("click", function (event) {
+//       event.stopPropagation();
+//       addressBlock.classList.remove("active");
+//       navigator.clipboard.writeText(userFriendlyAddress);
+//       displayNotification(null, "COPY");
+//     });
+//   }
 
-  displayDetailedWalletInfo(walletInfo) {
-    const loadPromises = [];
-    const tokenBlocks = [];
+//   displayDetailedWalletInfo(walletInfo) {
+//     const loadPromises = [];
+//     const tokenBlocks = [];
 
-    walletInfo.tokens
-      .slice()
-      .reverse()
-      .forEach((token) => {
-        const tokenBlock = document.querySelector(
-          `.token-block[data-token="${token.name}"]`
-        );
-        if (!tokenBlock) return;
-        tokenBlocks.push(tokenBlock);
+//     walletInfo.tokens
+//       .slice()
+//       .reverse()
+//       .forEach((token) => {
+//         const tokenBlock = document.querySelector(
+//           `.token-block[data-token="${token.name}"]`,
+//         );
+//         if (!tokenBlock) return;
+//         tokenBlocks.push(tokenBlock);
 
-        const logo = tokenBlock.querySelector(".token-logo");
-        // Не скрываем overlay здесь, только создаём промис загрузки картинки
-        if (logo && token.iconUrl) {
-          const loadPromise = new Promise((resolve) => {
-            const img = new Image();
-            img.onload = () => {
-              logo.src = token.iconUrl;
-              resolve();
-            };
-            img.onerror = () => {
-              resolve();
-            };
-            img.src = token.iconUrl;
-          });
-          loadPromises.push(loadPromise);
-        }
-      });
+//         const logo = tokenBlock.querySelector(".token-logo");
+//         // Не скрываем overlay здесь, только создаём промис загрузки картинки
+//         if (logo && token.iconUrl) {
+//           const loadPromise = new Promise((resolve) => {
+//             const img = new Image();
+//             img.onload = () => {
+//               logo.src = token.iconUrl;
+//               resolve();
+//             };
+//             img.onerror = () => {
+//               resolve();
+//             };
+//             img.src = token.iconUrl;
+//           });
+//           loadPromises.push(loadPromise);
+//         }
+//       });
 
-    Promise.allSettled(loadPromises).then(() => {
-      tokenBlocks.forEach((block) => {
-        const overlay = block.querySelector(".loader-overlay");
-        if (overlay) overlay.style.display = "none";
-      });
+//     Promise.allSettled(loadPromises).then(() => {
+//       tokenBlocks.forEach((block) => {
+//         const overlay = block.querySelector(".loader-overlay");
+//         if (overlay) overlay.style.display = "none";
+//       });
 
-      walletInfo.tokens
-        .slice()
-        .reverse()
-        .forEach((token) => {
-          const tokenBlock = document.querySelector(
-            `.token-block[data-token="${token.name}"]`
-          );
-          if (!tokenBlock) return;
+//       walletInfo.tokens
+//         .slice()
+//         .reverse()
+//         .forEach((token) => {
+//           const tokenBlock = document.querySelector(
+//             `.token-block[data-token="${token.name}"]`,
+//           );
+//           if (!tokenBlock) return;
 
-          const nameEl = tokenBlock.querySelector(".name");
-          const balanceEl = tokenBlock.querySelector(".balance");
-          const balanceUsdEl = tokenBlock.querySelector(".total-balance");
+//           const nameEl = tokenBlock.querySelector(".name");
+//           const balanceEl = tokenBlock.querySelector(".balance");
+//           const balanceUsdEl = tokenBlock.querySelector(".total-balance");
 
-          if (nameEl) {
-            nameEl.textContent = token.name;
-            nameEl.classList.remove("loader");
-          }
+//           if (nameEl) {
+//             nameEl.textContent = token.name;
+//             nameEl.classList.remove("loader");
+//           }
 
-          if (balanceEl) {
-            balanceEl.textContent = `${token.amount.toFixed(2)} ${
-              token.symbol
-            }`;
-            balanceEl.classList.remove("loader");
-          }
+//           if (balanceEl) {
+//             balanceEl.textContent = `${token.amount.toFixed(2)} ${
+//               token.symbol
+//             }`;
+//             balanceEl.classList.remove("loader");
+//           }
 
-          if (balanceUsdEl) {
-            balanceUsdEl.textContent = `${token.amountInUsd}$`;
-            balanceUsdEl.classList.remove("loader");
-          }
-        });
-    });
-  }
-}
+//           if (balanceUsdEl) {
+//             balanceUsdEl.textContent = `${token.amountInUsd}$`;
+//             balanceUsdEl.classList.remove("loader");
+//           }
+//         });
+//     });
+//   }
+// }
 
-class WalletButtons {
-  constructor(walletController, walletUI) {
-    this.walletController = walletController;
-    this.walletUI = walletUI;
+// class WalletButtons {
+//   constructor(walletController, walletUI) {
+//     this.walletController = walletController;
+//     this.walletUI = walletUI;
 
-    this.modal = document.getElementById("modal");
-    this.yesButton = document.getElementById("yesButton");
-    this.noButton = document.getElementById("noButton");
+//     this.modal = document.getElementById("modal");
+//     this.yesButton = document.getElementById("yesButton");
+//     this.noButton = document.getElementById("noButton");
 
-    this._bindEvents();
-  }
+//     this._bindEvents();
+//   }
 
-  _bindEvents() {
-    buttonConnectWallet.addEventListener("click", async () => {
-      buttonConnectWallet.innerHTML = "";
-      buttonConnectWallet.classList.add("load-task-animation");
-      buttonConnectWallet.classList.add("load-task");
+//   _bindEvents() {
+//     buttonConnectWallet.addEventListener("click", async () => {
+//       buttonConnectWallet.innerHTML = "";
+//       buttonConnectWallet.classList.add("load-task-animation");
+//       buttonConnectWallet.classList.add("load-task");
 
-      const walletInfoTon = await tonConnectUI.connectWallet();
-      const walletInfo = await this.walletController.connectWallet(
-        walletInfoTon.account.address
-      );
+//       const walletInfoTon = await tonConnectUI.connectWallet();
+//       const walletInfo = await this.walletController.connectWallet(
+//         walletInfoTon.account.address,
+//       );
 
-      if (walletInfo && walletInfo !== 500) {
-        this.walletUI.displayBaseWalletInfo(walletInfo.address);
-        this.walletUI.displayDetailedWalletInfo(walletInfo);
-        hasWalletInfo = true;
-        buttonConnectWallet.innerHTML = `<img src="icons/ton.png" />
-            <span id="wallet-address">Подключить кошелек</span>`;
-        buttonConnectWallet.classList.remove("load-task-animation");
-        buttonConnectWallet.classList.remove("load-task");
-      } else {
-        //TODO увед что не удалось подключить
-        buttonConnectWallet.innerHTML = `<img src="icons/ton.png" />
-            <span id="wallet-address">Подключить кошелек</span>`;
-        buttonConnectWallet.classList.remove("load-task-animation");
-        buttonConnectWallet.classList.remove("load-task");
-      }
-    });
+//       if (walletInfo && walletInfo !== 500) {
+//         this.walletUI.displayBaseWalletInfo(walletInfo.address);
+//         this.walletUI.displayDetailedWalletInfo(walletInfo);
+//         hasWalletInfo = true;
+//         buttonConnectWallet.innerHTML = `<img src="icons/ton.png" />
+//             <span id="wallet-address">Подключить кошелек</span>`;
+//         buttonConnectWallet.classList.remove("load-task-animation");
+//         buttonConnectWallet.classList.remove("load-task");
+//       } else {
+//         //TODO увед что не удалось подключить
+//         buttonConnectWallet.innerHTML = `<img src="icons/ton.png" />
+//             <span id="wallet-address">Подключить кошелек</span>`;
+//         buttonConnectWallet.classList.remove("load-task-animation");
+//         buttonConnectWallet.classList.remove("load-task");
+//       }
+//     });
 
-    walletButtonMenu.addEventListener("click", () => {
-      if (
-        !walletButtonMenu.classList.contains("active") &&
-        walletAddress !== null &&
-        hasWalletInfo === false
-      ) {
-        this.walletController.getWalletInfo();
-      }
-      walletButtonMenu.classList.toggle("active");
-      expandedContent.classList.toggle("active");
-    });
+//     walletButtonMenu.addEventListener("click", () => {
+//       if (
+//         !walletButtonMenu.classList.contains("active") &&
+//         walletAddress !== null &&
+//         hasWalletInfo === false
+//       ) {
+//         this.walletController.getWalletInfo();
+//       }
+//       walletButtonMenu.classList.toggle("active");
+//       expandedContent.classList.toggle("active");
+//     });
 
-    buttonDisconnectWallet.addEventListener("click", (event) => {
-      event.stopPropagation();
-      this.modal.style.display = "flex";
-    });
+//     buttonDisconnectWallet.addEventListener("click", (event) => {
+//       event.stopPropagation();
+//       this.modal.style.display = "flex";
+//     });
 
-    this.noButton.addEventListener("click", (event) => {
-      event.stopPropagation();
+//     this.noButton.addEventListener("click", (event) => {
+//       event.stopPropagation();
 
-      this.modal.style.display = "none";
-    });
+//       this.modal.style.display = "none";
+//     });
 
-    this.yesButton.addEventListener("click", async () => {
-      const responce = await this.walletController.disconnectWallet();
-      this.modal.style.display = "none";
-      if (responce === 200) {
-        tonConnectUI.disconnect();
-        this.walletUI.walletBlock.classList.add("not-connected");
-        buttonConnectWallet.style.display = "flex";
-        addressBlock.style.display = "none";
-        walletButtonMenu.style.display = "none";
-        expandedContent.style.display = "none";
-      } else {
-        alert("Не удалось отключить кошелек. Повторите попытку позже");
-      }
-    });
+//     this.yesButton.addEventListener("click", async () => {
+//       const responce = await this.walletController.disconnectWallet();
+//       this.modal.style.display = "none";
+//       if (responce === 200) {
+//         tonConnectUI.disconnect();
+//         this.walletUI.walletBlock.classList.add("not-connected");
+//         buttonConnectWallet.style.display = "flex";
+//         addressBlock.style.display = "none";
+//         walletButtonMenu.style.display = "none";
+//         expandedContent.style.display = "none";
+//       } else {
+//         alert("Не удалось отключить кошелек. Повторите попытку позже");
+//       }
+//     });
 
-    addressBlock.addEventListener("click", () => {
-      addressBlock.classList.toggle("active");
-    });
+//     addressBlock.addEventListener("click", () => {
+//       addressBlock.classList.toggle("active");
+//     });
 
-    document.addEventListener("click", (event) => {
-      if (this.modal.style.display !== "flex") {
-        if (!addressBlock.contains(event.target)) {
-          addressBlock.classList.remove("active");
-        }
-      }
-      if (event.target === this.modal) {
-        this.modal.style.display = "none";
-      }
-    });
-  }
-}
+//     document.addEventListener("click", (event) => {
+//       if (this.modal.style.display !== "flex") {
+//         if (!addressBlock.contains(event.target)) {
+//           addressBlock.classList.remove("active");
+//         }
+//       }
+//       if (event.target === this.modal) {
+//         this.modal.style.display = "none";
+//       }
+//     });
+//   }
+// }
 
-const walletButtonMenu = document.getElementById("wallet-button-menu");
-const addressBlock = document.getElementById("address-block");
+// const walletButtonMenu = document.getElementById("wallet-button-menu");
+// const addressBlock = document.getElementById("address-block");
 // const walletBalance = document.getElementById("wallet-balance");
-const expandedContent = document.getElementById("expanded-content");
-const buttonConnectWallet = document.getElementById("ton-connect");
-const buttonDisconnectWallet = document.getElementById("button-disconnect");
-const buttonCopyAddress = document.getElementById("button-copy");
+// const expandedContent = document.getElementById("expanded-content");
+// const buttonConnectWallet = document.getElementById("ton-connect");
+// const buttonDisconnectWallet = document.getElementById("button-disconnect");
+// const buttonCopyAddress = document.getElementById("button-copy");
 
-const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-  manifestUrl:
-    "https://gist.githubusercontent.com/YaNokavi/65fcf0123841bb4532ba22639d3dc620/raw/c167c5bbb5a4613a723f61ddedd89f025d6857aa/ton1.json",
-});
+// const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+//   manifestUrl:
+//     "https://gist.githubusercontent.com/YaNokavi/65fcf0123841bb4532ba22639d3dc620/raw/c167c5bbb5a4613a723f61ddedd89f025d6857aa/ton1.json",
+// });
 
 let hasWalletInfo = false;
 
@@ -568,18 +567,19 @@ const usernameProfile = document.querySelector(".profile-nickname");
 
 const tg = window.Telegram.WebApp;
 
-const avatarUrl = tg?.initDataUnsafe?.user?.photo_url || "";
-const userId = tg?.initDataUnsafe?.user?.id || 2;
-const rawUsername = tg?.initDataUnsafe?.user?.username || "eee";
+const avatarUrl = tg.initDataUnsafe.user.photo_url;
+const userId = tg.initDataUnsafe.user.id;
+const rawUsername = tg.initDataUnsafe.user.username;
 const username = rawUsername ? DOMPurify.sanitize(rawUsername) : "User";
 
 userIdProfile.innerText += userId;
 logoNameProfile.style.backgroundImage = `url('${avatarUrl}')`;
 
-const walletUI = new WalletUI();
-const walletController = new WalletController(userId, walletUI);
+// const walletUI = new WalletUI();
+// const walletController = new WalletController(userId, walletUI);
 
-const profileController = new ProfileController(userId, walletUI);
+// const profileController = new ProfileController(userId, walletUI);
+const profileController = new ProfileController(userId);
 profileController.getUserInfo();
 profileController.getTasks();
 
@@ -602,7 +602,7 @@ const setUserNameProfile = (name) => {
 
 setUserNameProfile(username);
 
-let walletAddress = null;
+// let walletAddress = null;
 
 const showPopup = () => {
   popup.style.display = "flex";

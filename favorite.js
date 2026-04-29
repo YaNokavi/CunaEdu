@@ -31,42 +31,42 @@ class FavoriteController {
     this.favoriteUI = new FavoriteUI("favorite-courses");
   }
 
-  async getDeviceTag() {
-    let deviceFingerprint = "unknown";
-    try {
-      const fp = await FingerprintJS.load();
-      const result = await fp.get();
-      // alert(result.components.platform.value);
-      // alert(result.components.vendor.value);
+  // async getDeviceTag() {
+  //   let deviceFingerprint = "unknown";
+  //   try {
+  //     const fp = await FingerprintJS.load();
+  //     const result = await fp.get();
+  //     // alert(result.components.platform.value);
+  //     // alert(result.components.vendor.value);
 
-      deviceFingerprint = result.visitorId;
-      console.log("Browser Fingerprint:", deviceFingerprint);
-    } catch (e) {
-      console.error("Fingerprint error:", e);
-      // Фолбэк на случай блокировки скрипта (например, AdBlock)
-      // Используем localStorage как "мягкий" идентификатор
-      deviceFingerprint = localStorage.getItem("device_unique_tag");
+  //     deviceFingerprint = result.visitorId;
+  //     console.log("Browser Fingerprint:", deviceFingerprint);
+  //   } catch (e) {
+  //     console.error("Fingerprint error:", e);
+  //     // Фолбэк на случай блокировки скрипта (например, AdBlock)
+  //     // Используем localStorage как "мягкий" идентификатор
+  //     deviceFingerprint = localStorage.getItem("device_unique_tag");
 
-      if (!deviceFingerprint) {
-        deviceFingerprint = "DEV-" + Math.random().toString(36).substr(2, 9);
-        localStorage.setItem("device_unique_tag", deviceFingerprint);
-      }
-    }
+  //     if (!deviceFingerprint) {
+  //       deviceFingerprint = "DEV-" + Math.random().toString(36).substr(2, 9);
+  //       localStorage.setItem("device_unique_tag", deviceFingerprint);
+  //     }
+  //   }
 
-    return deviceFingerprint;
-  }
+  //   return deviceFingerprint;
+  // }
 
-  async getUserIP() {
-    try {
-      const response = await fetch("https://api.ipify.org?format=json");
-      const data = await response.json();
+  // async getUserIP() {
+  //   try {
+  //     const response = await fetch("https://api.ipify.org?format=json");
+  //     const data = await response.json();
 
-      return data.ip;
-    } catch (error) {
-      console.error("Ошибка получения IP:", error);
-      return null;
-    }
-  }
+  //     return data.ip;
+  //   } catch (error) {
+  //     console.error("Ошибка получения IP:", error);
+  //     return null;
+  //   }
+  // }
 
   async sendUserInfo() {
     let referallId = JSON.parse(localStorage.getItem("referallId"));
@@ -84,18 +84,18 @@ class FavoriteController {
     };
 
     try {
-      const [userIp, deviceData] = await Promise.all([
-        this.getUserIP(),
-        this.getDeviceTag(),
-      ]);
+      // const [userIp, deviceData] = await Promise.all([
+      //   this.getUserIP(),
+      //   this.getDeviceTag(),
+      // ]);
 
       let userTest = await fetchData(
         `user/login-and-daily-test`,
         "POST",
         {
           "X-User-Id": this.userId,
-          "X-User-Ip": userIp,
-          "X-User-Device-Id": deviceData,
+          "X-User-Ip": "111",
+          "X-User-Device-Id": "111",
         },
         body,
       );

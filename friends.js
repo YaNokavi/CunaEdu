@@ -8,7 +8,7 @@ class FriendsController {
       "friends",
       "list-referrals-top",
       "timer",
-      this.userId
+      this.userId,
     );
   }
 
@@ -26,18 +26,18 @@ class FriendsController {
     }
   }
 
-  async getTopUsers() {
-    try {
-      const topUsers = await fetchData(`event/referral-competition`, "GET", {
-        "X-User-Id": this.userId,
-      });
+  // async getTopUsers() {
+  //   try {
+  //     const topUsers = await fetchData(`event/referral-competition`, "GET", {
+  //       "X-User-Id": this.userId,
+  //     });
 
-      this.friendsUI.startCountdown(topUsers.eventEndDate);
-      this.friendsUI.displayTopUsers(topUsers);
-    } catch (error) {
-      console.error("Не удалось получить топ рефералов", error, error.status);
-    }
-  }
+  //     // this.friendsUI.startCountdown(topUsers.eventEndDate);
+  //     // this.friendsUI.displayTopUsers(topUsers);
+  //   } catch (error) {
+  //     console.error("Не удалось получить топ рефералов", error, error.status);
+  //   }
+  // }
 }
 
 class FriendsUI {
@@ -68,7 +68,7 @@ class FriendsUI {
 
       const days = Math.floor(distance / (1000 * 60 * 60 * 24));
       const hours = Math.floor(
-        (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+        (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
       );
       const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
       const seconds = Math.floor((distance % (1000 * 60)) / 1000);
@@ -163,7 +163,7 @@ class FriendsUI {
               <div class="friends-list-user-logo"></div>
               <div class="friends-list-user-info">
                 <div class="friends-list-user-info-name">${DOMPurify.sanitize(
-                  item.username
+                  item.username,
                 )}</div>
                   <div class="friends-list-user-info-data">
                     <div class="friends-list-user-info-balance">
@@ -364,7 +364,7 @@ class FriendsUI {
               <div class="friends-list-user-logo"></div>
               <div class="friends-list-user-info">
                 <div class="friends-list-user-info-name">${DOMPurify.sanitize(
-                  item.name
+                  item.name,
                 )}</div>
                 <div class="friends-list-user-info-balance">
                   <div class="friends-list-user-info-balance-text">${
@@ -400,7 +400,7 @@ class FriendsButtons {
     this.popupBtnSvg = document.getElementById("popu");
     this.modalButtonOk = document.getElementById("okButton");
 
-    this._bindStaticEvents();
+    // this._bindStaticEvents();
   }
 
   _bindStaticEvents() {
@@ -433,7 +433,7 @@ class FriendsButtons {
       buttonInvite.addEventListener("click", () => {
         const link = `https://t.me/cunaedu_bot/CunaEdu?startapp=${userId}`;
         const text = encodeURIComponent(
-          "Узнавай новое вместе со мной (@cryptuna)"
+          "Узнавай новое вместе со мной (@cryptuna)",
         );
         const url = encodeURIComponent(link);
         window.location.href = `https://t.me/share/url?url=${url}&text=${text}`;
@@ -486,4 +486,4 @@ const username = rawUsername ? DOMPurify.sanitize(rawUsername) : "User";
 
 const friends = new FriendsController(userId);
 friends.getReferrals();
-friends.getTopUsers();
+// friends.getTopUsers();
