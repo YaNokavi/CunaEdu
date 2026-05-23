@@ -3,15 +3,6 @@ const tg = window.Telegram.WebApp;
 const platform = tg.platform;
 const version = Number(tg.version);
 
-// try {
-//   tg.initDataUnsafe.user.id;
-if (platform == "web") {
-  window.location.href = "webversion.html";
-}
-// } catch {
-//   window.location.href = "nontg.html";
-// }
-
 function applyTheme(theme) {
   if (theme === "light") {
     tg.setHeaderColor("#1468B1");
@@ -218,7 +209,11 @@ tg.disableVerticalSwipes();
 
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("tab").addEventListener("click", function () {
-    tg.HapticFeedback.impactOccurred("medium");
+    const clickedTab = event.target.closest(".tab-item");
+
+    if (clickedTab) {
+      tg.HapticFeedback.impactOccurred("medium");
+    }
   });
 });
 
@@ -288,62 +283,7 @@ function swipeAllow() {
   document.addEventListener("touchmove", function (e) {
     const moveX = e.touches[0].clientX;
     if (startX <= 15 && moveX - startX > swipeDistance) {
-      // sessionStorage.removeItem("currentTab");
-      // sessionStorage.removeItem("currentLink");
       window.location.href = link;
     }
   });
 }
-
-// let userOnline = true;
-// let tabBar = null;
-// window.addEventListener("DOMContentLoaded", () => {
-//   tabBar = document.querySelectorAll(".tab-item");
-// });
-
-// const listeners = [];
-
-// function setUserOnline(status) {
-//   userOnline = status;
-//   // Вызываем все подписанные обработчики
-//   listeners.forEach((fn) => fn(userOnline));
-// }
-
-// function onUserOnlineChange(fn) {
-//   listeners.push(fn);
-// }
-
-// // Навешиваем слушатели на события браузера
-// window.addEventListener("online", () => {
-//   console.log("Пользователь онлайн");
-//   setUserOnline(true);
-// });
-
-// window.addEventListener("offline", () => {
-//   console.log("Пользователь офлайн");
-//   alert("Какие-то неполадки. Проверьте подключение к интернету");
-//   setUserOnline(false);
-// });
-
-// // Подписываемся на изменения статуса
-// onUserOnlineChange((status) => {
-//   console.log("Статус сети изменился:", status);
-//   if (status === true) {
-//     document.getElementById("preloader").style.display = "none";
-//     disableTab();
-//   } else {
-//     document.getElementById("preloader").style.display = "flex";
-
-//     tabBar.forEach((item) => {
-//       item.style.pointerEvents = "none";
-//     });
-//   }
-// });
-
-// function disableTab() {
-//   tabBar.forEach((item) => {
-//     item.style.pointerEvents = "auto";
-//   });
-//   const tab = document.getElementById("active");
-//   tab.style.pointerEvents = "none";
-// }

@@ -1,24 +1,4 @@
 import fetchData from "./fetch.js";
-import FingerprintJS from "./finger.js";
-// import FingerprintJS from "https://openfpcdn.io/fingerprintjs/v4";
-
-async function displayNotification(reward) {
-  const notification = document.getElementById("notification");
-  const notificationBalance = document.getElementById("notification-balance");
-  notificationBalance.innerText = `+${reward}`;
-  const notificationLogo = document.querySelector(".notification-logo");
-  if (!notificationLogo) {
-    notification.innerHTML += '<div class="notification-logo"></div>';
-  }
-  notification.classList.add("show");
-  setTimeout(() => {
-    tg.HapticFeedback.notificationOccurred("success");
-  }, 350);
-
-  setTimeout(() => {
-    notification.classList.remove("show");
-  }, 2000);
-}
 
 class FavoriteController {
   constructor(userId, tabManager, modalManager, dailyTestManager) {
@@ -30,43 +10,6 @@ class FavoriteController {
 
     this.favoriteUI = new FavoriteUI("favorite-courses");
   }
-
-  // async getDeviceTag() {
-  //   let deviceFingerprint = "unknown";
-  //   try {
-  //     const fp = await FingerprintJS.load();
-  //     const result = await fp.get();
-  //     // alert(result.components.platform.value);
-  //     // alert(result.components.vendor.value);
-
-  //     deviceFingerprint = result.visitorId;
-  //     console.log("Browser Fingerprint:", deviceFingerprint);
-  //   } catch (e) {
-  //     console.error("Fingerprint error:", e);
-  //     // Фолбэк на случай блокировки скрипта (например, AdBlock)
-  //     // Используем localStorage как "мягкий" идентификатор
-  //     deviceFingerprint = localStorage.getItem("device_unique_tag");
-
-  //     if (!deviceFingerprint) {
-  //       deviceFingerprint = "DEV-" + Math.random().toString(36).substr(2, 9);
-  //       localStorage.setItem("device_unique_tag", deviceFingerprint);
-  //     }
-  //   }
-
-  //   return deviceFingerprint;
-  // }
-
-  // async getUserIP() {
-  //   try {
-  //     const response = await fetch("https://api.ipify.org?format=json");
-  //     const data = await response.json();
-
-  //     return data.ip;
-  //   } catch (error) {
-  //     console.error("Ошибка получения IP:", error);
-  //     return null;
-  //   }
-  // }
 
   async sendUserInfo() {
     let referallId = JSON.parse(localStorage.getItem("referallId"));
@@ -84,11 +27,6 @@ class FavoriteController {
     };
 
     try {
-      // const [userIp, deviceData] = await Promise.all([
-      //   this.getUserIP(),
-      //   this.getDeviceTag(),
-      // ]);
-
       let userTest = await fetchData(
         `user/login-and-daily-test`,
         "POST",
@@ -99,14 +37,6 @@ class FavoriteController {
         },
         body,
       );
-
-      if (userTest.historyType !== null) {
-        localStorage.setItem("storiesType", userTest.historyType);
-        document.getElementById("page").style.display = "flex";
-
-        const event = new Event("storiesReady");
-        window.dispatchEvent(event);
-      }
 
       let dailyTestPromise = Promise.resolve();
 
@@ -119,7 +49,7 @@ class FavoriteController {
         localStorage.setItem("flagFirstJoin", false);
       }
 
-      this.getFavoriteCourses();
+      this.getCourses();
 
       await dailyTestPromise;
 
@@ -129,14 +59,16 @@ class FavoriteController {
     }
   }
 
-  async getFavoriteCourses() {
+  async getCourses() {
     try {
-      const courseInfo = await fetchData(`user/favorite-courses`, "GET", {
+      const courseInfo = await fetchData(`course/all`, "GET", {
         "X-User-Id": this.userId,
       });
-      courseInfo.length
-        ? this.favoriteUI.displayCourses(courseInfo)
-        : this.favoriteUI.displayButton();
+      // const coursesObjects = coursesData.map((data) => new CourseData(data));
+      this.favoriteUI.displayCourses(courseInfo);
+      // courseInfo.length
+      //   ? this.favoriteUI.displayCourses(courseInfo)
+      //   : this.favoriteUI.displayButton();
     } catch (error) {
       console.error(error, error.status);
     }
@@ -350,21 +282,6 @@ class DailyTestManager {
       promises.push(loadPromise);
     }
 
-    const pageElement = document.getElementById("page");
-    const areStoriesOpen =
-      pageElement && window.getComputedStyle(pageElement).display !== "none";
-
-    if (areStoriesOpen) {
-      const storiesPromise = new Promise((resolve) => {
-        const onStoriesClosed = () => {
-          window.removeEventListener("storiesClosed", onStoriesClosed);
-          resolve();
-        };
-        window.addEventListener("storiesClosed", onStoriesClosed);
-      });
-      promises.push(storiesPromise);
-    }
-
     await Promise.allSettled(promises);
 
     await new Promise((resolve) => setTimeout(resolve, 500));
@@ -535,10 +452,6 @@ class DailyTestManager {
       }
 
       const testBlock = document.getElementById("test");
-
-      if (rewardAmount !== null && testBlock) {
-        displayNotification(rewardAmount);
-      }
 
       this.modalManager.enableClose();
 
@@ -818,13 +731,6 @@ const userId = tg.initDataUnsafe.user.id;
 const rawUsername = tg.initDataUnsafe.user.username;
 const username = rawUsername ? DOMPurify.sanitize(rawUsername) : "User";
 
-// const tg = window.Telegram.WebApp;
-// const avatarUrl =
-//   tg.initDataUnsafe?.user?.photo_url ?? "tg.initDataUnsafe.user.photo_url";
-// const userId = tg.initDataUnsafe?.user?.id ?? 1;
-// const rawUsername = tg.initDataUnsafe?.user?.username;
-// const username = rawUsername ? DOMPurify.sanitize(rawUsername) : "User";
-
 const flagFirstJoin = JSON.parse(localStorage.getItem("flagFirstJoin"));
 document.addEventListener("DOMContentLoaded", () => {
   const tabBar = document.querySelectorAll(".tab-item");
@@ -842,6 +748,6 @@ document.addEventListener("DOMContentLoaded", () => {
     tabManager.disableTabs();
     favoriteController.sendUserInfo();
   } else {
-    favoriteController.getFavoriteCourses();
+    favoriteController.getCourses();
   }
 });

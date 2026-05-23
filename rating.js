@@ -32,9 +32,12 @@ function updateStars(newRating) {
     starsRating.forEach((star) => {
       const starValue = +star.getAttribute("data-value");
       if (starValue > newRating && starValue <= currentRating) {
-        setTimeout(() => {
-          star.classList.remove("active");
-        }, 15 * (currentRating - starValue));
+        setTimeout(
+          () => {
+            star.classList.remove("active");
+          },
+          15 * (currentRating - starValue),
+        );
       }
     });
   } else {
@@ -61,7 +64,7 @@ class RatingController {
       reviews = await fetchData(
         `course/${this.courseId}/reviews?sort=${sortType}`,
         "GET",
-        { "X-User-Id": this.userId }
+        { "X-User-Id": this.userId },
       );
 
       this.ratingUI.displayComments(reviews.courseReviews);
@@ -462,7 +465,7 @@ class UserCommentController {
         "POST",
         { "X-User-Id": userId },
         body,
-        false
+        false,
       );
 
       // Вызов методов через объекты
@@ -556,7 +559,7 @@ class UserCommentManager {
     this.buttonReverse.addEventListener("click", () => {
       const currentText = textarea.value;
       const currentStars = Array.from(starsRating).filter((star) =>
-        star.classList.contains("active")
+        star.classList.contains("active"),
       ).length;
 
       const isTextChanged = currentText !== originalText;
@@ -581,7 +584,7 @@ class UserCommentManager {
           this.userCommentController.changeComment(
             reviews.currentUserReview.reviewId,
             text,
-            currentRating
+            currentRating,
           );
           this.resetButtons(reviews.currentUserReview);
         } else {
@@ -592,7 +595,7 @@ class UserCommentManager {
         if (reviews.currentUserReview) {
           const currentText = textarea.value;
           const currentStars = Array.from(starsRating).filter((star) =>
-            star.classList.contains("active")
+            star.classList.contains("active"),
           ).length;
 
           const isTextChanged = currentText !== originalText;
@@ -601,16 +604,16 @@ class UserCommentManager {
             this.userCommentController.changeComment(
               reviews.currentUserReview.reviewId,
               stripHtmlTags(textarea.value),
-              currentRating
+              currentRating,
             );
             this.resetButtons(reviews.currentUserReview);
           } else {
-            alert("Ваш отзыв не изменился!")
+            alert("Ваш отзыв не изменился!");
           }
         } else {
           this.userCommentController.sendComment(
             stripHtmlTags(textarea.value),
-            currentRating
+            currentRating,
           );
           this.resetButtons(reviews.currentUserReview);
         }
@@ -643,7 +646,7 @@ class UserCommentManager {
         originalStars = 0;
         updateStars(originalStars);
         this.userCommentController.deleteComment(
-          reviews.currentUserReview.reviewId
+          reviews.currentUserReview.reviewId,
         );
       } else if (this.currentAction === "reverse") {
         this.resetButtons(reviews.currentUserReview);
@@ -696,7 +699,7 @@ class UserReactionController {
         "POST",
         { "X-User-Id": this.userId },
         body,
-        false
+        false,
       );
 
       return response;
@@ -716,7 +719,7 @@ class UserReactionController {
         "PUT",
         { "X-User-Id": this.userId },
         body,
-        false
+        false,
       );
 
       return response;
@@ -732,7 +735,7 @@ class UserReactionController {
         "DELETE",
         { "X-User-Id": this.userId },
         null,
-        false
+        false,
       );
 
       return response;
@@ -778,7 +781,7 @@ class UserReactionButtons {
             // Дожидаемся ответа от сервера
             const response =
               await this.userReactionController.deleteUserReaction(
-                review.reviewId
+                review.reviewId,
               );
 
             // Если сервер вернул ошибку
@@ -810,13 +813,13 @@ class UserReactionButtons {
 
               response = await this.userReactionController.updateUserReaction(
                 review.reviewId,
-                "LIKE"
+                "LIKE",
               );
             } else {
               // Новый лайк
               response = await this.userReactionController.sendUserReaction(
                 review.reviewId,
-                "LIKE"
+                "LIKE",
               );
             }
 
@@ -865,7 +868,7 @@ class UserReactionButtons {
             // Дожидаемся ответа от сервера
             const response =
               await this.userReactionController.deleteUserReaction(
-                review.reviewId
+                review.reviewId,
               );
 
             // Если сервер вернул ошибку
@@ -885,13 +888,13 @@ class UserReactionButtons {
 
               response = await this.userReactionController.updateUserReaction(
                 review.reviewId,
-                "DISLIKE"
+                "DISLIKE",
               );
             } else {
               // Новый дизлайк
               response = await this.userReactionController.sendUserReaction(
                 review.reviewId,
-                "DISLIKE"
+                "DISLIKE",
               );
             }
 
@@ -979,23 +982,3 @@ const userCommentController = new UserCommentController(rating, filterManager);
 const userCommentManager = new UserCommentManager(userCommentController);
 
 rating.getReviews("NEW_FIRST", false);
-
-const refer = localStorage.getItem("refer");
-const favorTab = document.getElementById("favor");
-const catalogTab = document.getElementById("catalog");
-
-catalogTab.style.animation = "none";
-favorTab.style.animation = "none";
-function setupCatalog() {
-  catalogTab.style.color = "#ffffff";
-}
-
-function setupFavorite() {
-  favorTab.style.color = "#ffffff";
-}
-
-if (refer.endsWith("favorite.html")) {
-  setupFavorite();
-} else if (refer.endsWith("catalog.html")) {
-  setupCatalog();
-}

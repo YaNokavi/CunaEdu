@@ -14,10 +14,6 @@ class Course {
     return this.data.lastCompletedStep || null;
   }
 
-  get favorite() {
-    return this.data.favorite || false;
-  }
-
   get learningOutcomes() {
     return this.data.learningOutcomes || [];
   }
@@ -54,14 +50,13 @@ class CourseUI {
   displayAll() {
     if (!this.course) return;
 
-    if (this.course.favorite && this.course.lastCompletedStep) {
+    if (this.course.lastCompletedStep) {
       this.displayLastStep();
     }
     this.displayCourseInfo();
     this.displayLearning();
     this.displayModules();
     this.displayRating();
-    this.buttons.setupButtons(this.course.favorite);
 
     this.hidePreloader();
   }
@@ -126,7 +121,7 @@ class CourseUI {
 
       const svgIcon = document.createElementNS(
         "http://www.w3.org/2000/svg",
-        "svg"
+        "svg",
       );
       svgIcon.setAttribute("width", "17");
       svgIcon.setAttribute("height", "11");
@@ -135,13 +130,13 @@ class CourseUI {
 
       const path = document.createElementNS(
         "http://www.w3.org/2000/svg",
-        "path"
+        "path",
       );
       path.setAttribute("fill-rule", "evenodd");
       path.setAttribute("clip-rule", "evenodd");
       path.setAttribute(
         "d",
-        "M9.35907 1.30377L16.1946 8.37502L14.486 10.1425L8.50477 3.95502L2.52352 10.1425L0.814941 8.37502L7.65048 1.30377C7.87708 1.06943 8.18437 0.937784 8.50477 0.937784C8.82518 0.937784 9.13247 1.06943 9.35907 1.30377Z"
+        "M9.35907 1.30377L16.1946 8.37502L14.486 10.1425L8.50477 3.95502L2.52352 10.1425L0.814941 8.37502L7.65048 1.30377C7.87708 1.06943 8.18437 0.937784 8.50477 0.937784C8.82518 0.937784 9.13247 1.06943 9.35907 1.30377Z",
       );
       path.setAttribute("fill", "#A6A6A6");
 
@@ -233,8 +228,6 @@ class CourseController {
     this.ui = null;
     this.buttons = new CourseButtons();
 
-    this.buttons.onAddCourse = this.addCourse.bind(this);
-    this.buttons.onLeaveCourse = this.leaveCourse.bind(this);
     this.buttons.onGoCourse = this.goCourse.bind(this);
   }
 
@@ -245,7 +238,7 @@ class CourseController {
         "GET",
         {
           "X-User-Id": this.userId,
-        }
+        },
       );
       this.course = new Course(courseData);
       this.ui = new CourseUI(this.course, this.courseId, this.buttons);
@@ -253,56 +246,6 @@ class CourseController {
     } catch (error) {
       alert("Ошибка при загрузке данных курса");
       return;
-    }
-  }
-
-  async addCourse() {
-    // Логика добавления в избранное с запросом и обновлением UI
-    try {
-      const body = { courseId: this.courseId };
-      const responce = await fetchData(
-        `user/favorite-course`,
-        "POST",
-        { "X-User-Id": this.userId },
-        body,
-        false
-      );
-      // Обновляем состояние курса и интерфейс
-
-      if (responce === 200) {
-        this.course.data.favorite = true;
-        if (this.course.lastCompletedStep) {
-          this.ui.displayLastStep();
-        }
-
-        return responce;
-      }
-    } catch {
-      alert("Не удалось установить соединение с сервером");
-    }
-  }
-
-  async leaveCourse() {
-    // Логика удаления из избранного с запросом и обновлением UI
-    try {
-      const body = { courseId: this.courseId };
-      const responce = await fetchData(
-        `user/favorite-course`,
-        "DELETE",
-        { "X-User-Id": this.userId },
-        body,
-        false
-      );
-
-      // Обновляем состояние курса и интерфейс
-      if (responce === 200) {
-        this.course.data.favorite = false;
-        this.ui.lastStepBlock.style.display = "none";
-        return responce;
-      }
-    } catch {
-      alert("Не удалось установить соединение с сервером");
-      return 0;
     }
   }
 
@@ -314,19 +257,8 @@ class CourseController {
 
 class CourseButtons {
   constructor() {
-    this.addCourseButton = document.getElementById("add-course-button");
-    this.leaveCourseButton = document.getElementById("leave-course-button");
     this.goCourseButton = document.getElementById("go-course-button");
     this.buttonHrefComments = document.getElementById("button-href-comments");
-    this.buttonsBlock = document.getElementById("buttons-block");
-
-    this.text = document.querySelector(".course-block-button span");
-    this.star1 = document.getElementById("star1");
-    this.star2 = document.getElementById("star2");
-
-    this.modal = document.getElementById("modal");
-    this.yesButton = document.getElementById("yesButton");
-    this.noButton = document.getElementById("noButton");
 
     this._bindEvents();
   }
@@ -336,137 +268,9 @@ class CourseButtons {
       window.location.href = `rating.html?v=2.0.0&courseId=${courseId}`;
     });
 
-    this.addCourseButton.addEventListener("click", async () => {
-      this.animateCourseButton("ADD");
-      const responce = await this.onAddCourse();
-      if (responce === 200) {
-        this.enableButtons();
-      } else {
-        this.animateCourseButton("LEAVE");
-        this.enableButtons();
-      }
-    });
-
-    this.leaveCourseButton.addEventListener("click", () => {
-      this.showModal(true);
-    });
-
-    this.noButton.addEventListener("click", () => {
-      this.showModal(false);
-    });
-
-    this.yesButton.addEventListener("click", async () => {
-      this.showModal(false);
-      this.animateCourseButton("LEAVE");
-      const response = await this.onLeaveCourse();
-      if (response === 200) {
-        this.enableButtons();
-      } else {
-        this.animateCourseButton("ADD");
-        this.enableButtons();
-      }
-    });
-
-    document.addEventListener("click", (event) => {
-      if (event.target === this.modal) {
-        this.showModal(false);
-      }
-    });
-
     this.goCourseButton.addEventListener("click", () => {
       this.onGoCourse && this.onGoCourse();
     });
-  }
-
-  showModal(show) {
-    this.modal.style.display = show ? "block" : "none";
-  }
-
-  setupButtons(isFavorite) {
-    const buttonsConfig = [
-      { button: this.addCourseButton, show: !isFavorite },
-      { button: this.star1, show: !isFavorite },
-      { button: this.buttonsBlock, show: isFavorite },
-      { button: this.leaveCourseButton, show: isFavorite },
-      { button: this.goCourseButton, show: isFavorite },
-      { button: this.star2, show: isFavorite },
-    ];
-
-    buttonsConfig.forEach(({ button, show }) => {
-      button.style.display = show ? "flex" : "none";
-    });
-  }
-
-  disableButtons() {
-    this.addCourseButton.style.pointerEvents = "none";
-    this.goCourseButton.style.pointerEvents = "none";
-    this.leaveCourseButton.style.pointerEvents = "none";
-  }
-
-  enableButtons() {
-    this.addCourseButton.style.pointerEvents = "auto";
-    this.goCourseButton.style.pointerEvents = "auto";
-    this.leaveCourseButton.style.pointerEvents = "auto";
-  }
-
-  animateCourseButton(type) {
-    if (type === "ADD") {
-      this.disableButtons();
-      this.text.style.animation = "fade-out 10ms ease";
-      this.star1.style.animation = "fade-out 10ms ease";
-
-      setTimeout(() => {
-        this.addCourseButton.style.animation = "button-course 0.4s ease";
-        this.text.innerText = "";
-        this.star1.style.display = "none";
-        setTimeout(() => {
-          this.star2.style.animation = "fade-in 100ms ease";
-          this.star2.style.display = "block";
-          this.star1.style.animation = "none";
-          this.addCourseButton.style.display = "none";
-          this.addCourseButton.style.animation = "none";
-          this.leaveCourseButton.style.display = "flex";
-          this.text.style.animation = "none";
-          this.goCourseButton.style.animation = "fade-in 200ms ease";
-          this.goCourseButton.style.display = "flex";
-          this.buttonsBlock.style.display = "flex";
-        }, 400);
-      }, 10);
-    } else if (type === "LEAVE") {
-      this.disableButtons();
-      this.goCourseButton.style.animation = "fade-out 150ms ease";
-
-      setTimeout(() => {
-        this.leaveCourseButton.style.marginLeft = "auto";
-        this.goCourseButton.style.display = "none";
-        this.star2.style.animation = "fade-out 100ms ease";
-
-        setTimeout(() => {
-          this.leaveCourseButton.style.animation =
-            "button-favorite .4s cubic-bezier(0.385, -0.220, 0.520, 0.840)";
-          this.star2.style.display = "none";
-
-          setTimeout(() => {
-            this.text.style.animation = "fade-in 50ms ease";
-            this.star1.style.animation = "fade-in 50ms ease";
-            this.text.innerText = "Поступить на курс";
-            this.star1.style.display = "block";
-            this.leaveCourseButton.style.display = "none";
-            this.addCourseButton.style.display = "flex";
-            this.leaveCourseButton.style.animation = "none";
-            this.goCourseButton.style.animation = "none";
-            this.buttonsBlock.style.display = "none";
-
-            setTimeout(() => {
-              this.leaveCourseButton.style.marginLeft = "-30px";
-              this.star1.style.animation = "none";
-              this.star2.style.animation = "none";
-              this.text.style.animation = "none";
-            }, 10);
-          }, 350);
-        }, 100);
-      }, 150);
-    }
   }
 }
 
@@ -479,37 +283,3 @@ const userId = tg.initDataUnsafe.user.id;
 
 const controller = new CourseController(courseId, userId);
 controller.loadCourse();
-
-var refer = document.referrer.split("/").pop();
-refer = refer.split("?")[0];
-const favorTab = document.getElementById("favor");
-const catalogTab = document.getElementById("catalog");
-catalogTab.style.animation = "none";
-favorTab.style.animation = "none";
-
-function setupCatalog() {
-  catalogTab.style.color = "#ffffff";
-}
-
-function setupFavorite() {
-  favorTab.style.color = "#ffffff";
-}
-
-if (refer.endsWith("favorite.html")) {
-  localStorage.setItem("refer", refer);
-  setupFavorite();
-} else if (refer.endsWith("catalog.html")) {
-  localStorage.setItem("refer", refer);
-  setupCatalog();
-} else if (
-  refer.endsWith("syllabus.html") ||
-  refer.endsWith("rating.html") ||
-  !refer
-) {
-  let referSyl = localStorage.getItem("refer");
-  if (referSyl.endsWith("favorite.html")) {
-    setupFavorite();
-  } else if (referSyl.endsWith("catalog.html")) {
-    setupCatalog();
-  }
-}

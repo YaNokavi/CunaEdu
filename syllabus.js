@@ -15,7 +15,7 @@ class SyllabusController {
         "GET",
         {
           "X-User-Id": this.userId,
-        }
+        },
       );
       this.syllabusUI.displayModules(modulesData.modules);
     } catch (error) {
@@ -50,14 +50,14 @@ class SyllabusUI {
       const moduleMainText = this.createElement(
         "div",
         "syllabus-name-main",
-        `${module.number}. ${module.name}`
+        `${module.number}. ${module.name}`,
       );
       moduleMain.append(moduleMainText);
       this.block.append(moduleMain);
 
       const moduleAditional = this.createElement(
         "div",
-        "syllabus-modules-aditional"
+        "syllabus-modules-aditional",
       );
       this.block.append(moduleAditional);
 
@@ -65,7 +65,7 @@ class SyllabusUI {
         const submoduleLink = this.createElement(
           "a",
           "syllabus-name-aditional",
-          `${module.number}.${submodule.number} ${submodule.name}`
+          `${module.number}.${submodule.number} ${submodule.name}`,
         );
 
         submoduleLink.href = `step.html?v=2.0.0&courseId=${this.courseId}&submoduleId=${submodule.id}&stepNumber=1`;
@@ -73,7 +73,7 @@ class SyllabusUI {
         const stepProgress = this.createElement(
           "div",
           "syllabus-step-pogress",
-          `${submodule.completedStepsCount}/${submodule.totalStepsCount}`
+          `${submodule.completedStepsCount}/${submodule.totalStepsCount}`,
         );
         submoduleLink.append(stepProgress);
         moduleAditional.append(submoduleLink);
@@ -92,23 +92,3 @@ const userId = tg.initDataUnsafe.user.id;
 
 const syllabus = new SyllabusController(userId, courseId);
 syllabus.getSyllabus();
-
-const refer = localStorage.getItem("refer");
-const favorTab = document.getElementById("favor");
-const catalogTab = document.getElementById("catalog");
-
-catalogTab.style.animation = "none";
-favorTab.style.animation = "none";
-function setupCatalog() {
-  catalogTab.style.color = "#ffffff";
-}
-
-function setupFavorite() {
-  favorTab.style.color = "#ffffff";
-}
-
-if (refer.endsWith("favorite.html")) {
-  setupFavorite();
-} else if (refer.endsWith("catalog.html")) {
-  setupCatalog();
-}

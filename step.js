@@ -182,7 +182,6 @@ class StepProgressController {
       );
 
       if (response) {
-        this.stepUI.displayNotification(response);
         this.changeStorage(stepId);
         return 200;
       } else {
@@ -377,20 +376,6 @@ class StepUI {
     this.stepImageController = new StepImageController();
     this.stepProgressController = new StepProgressController(this.userId, this);
     this.stepTestManager = new StepTestManager(this.stepProgressController);
-  }
-
-  displayNotification(numberBalance) {
-    const notification = document.getElementById("notification");
-    const notificationBalance = document.getElementById("notification-balance");
-    notificationBalance.innerText = `+${numberBalance}`;
-    notification.classList.add("show");
-    setTimeout(() => {
-      tg.HapticFeedback.notificationOccurred("success");
-    }, 350);
-
-    setTimeout(() => {
-      notification.classList.remove("show");
-    }, 2000);
   }
 
   displayStepInfo(stepsDataLength) {
@@ -594,7 +579,7 @@ class StepUI {
 }
 
 const tg = window.Telegram.WebApp;
-const userId = tg.initDataUnsafe?.user?.id ?? 1;
+const userId = tg.initDataUnsafe.user.id;
 
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
@@ -604,21 +589,3 @@ const courseId = Number(urlParams.get("courseId"));
 
 const stepController = new StepController(userId, submoduleId, stepNumber);
 stepController.getSteps();
-
-const refer = localStorage.getItem("refer");
-const favorTab = document.getElementById("favor");
-const catalogTab = document.getElementById("catalog");
-let link = document.referrer.split("/").pop();
-link = link.split("&").pop();
-
-favorTab.style.animation = "none";
-catalogTab.style.animation = "none";
-function setupTab(tab) {
-  tab.style.color = "#ffffff";
-}
-
-if (refer.endsWith("favorite.html")) {
-  setupTab(favorTab);
-} else if (refer.endsWith("catalog.html")) {
-  setupTab(catalogTab);
-}
