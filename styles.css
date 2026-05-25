@@ -359,7 +359,7 @@ main {
   color: var(--theme-header-text-color);
 }
 
-.page-favorite .tab-item.tab-item-active {
+.main-page .tab-item.tab-item-active {
   pointer-events: none;
   cursor: default;
 }
